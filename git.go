@@ -2,7 +2,9 @@ package main
 
 import (
 	"fmt"
+	"os"
 	"os/exec"
+	"path/filepath"
 	"regexp"
 	"strings"
 )
@@ -175,12 +177,31 @@ func CreateTag(version string, tr *Translator) (string, error) {
 	return output.String(), nil
 }
 
+func getGitIndexPath() (string, error) {
+	cmd := exec.Command("git", "rev-parse", "--git-dir")
+	out, err := cmd.Output()
+	if err != nil {
+		return "", err
+	}
+	gitDir := strings.TrimSpace(string(out))
+	return filepath.Join(gitDir, "index"), nil
+}
+
 func RunConventionalCommit(commitType, desc string, tr *Translator) (string, error) {
 	var output strings.Builder
 	msg := fmt.Sprintf("%s: %s", commitType, desc)
 
 	writeLine := func(format string, a ...any) {
 		output.WriteString(fmt.Sprintf(format, a...))
+	}
+
+	// Remove stale index.lock if present
+	if lockPath, err := getGitIndexPath(); err == nil {
+		lockFile := lockPath + ".lock"
+		if _, statErr := os.Stat(lockFile); statErr == nil {
+			os.Remove(lockFile)
+			writeLine("Removed stale %s\n", filepath.Base(lockFile))
+		}
 	}
 
 	writeLine("> git add .\n")
