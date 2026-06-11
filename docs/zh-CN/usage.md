@@ -8,8 +8,10 @@
 | `gitf tui` | 同上 |
 | `gitf switch <id>` | 按 ID 切换身份 |
 | `gitf status` | 查看当前 Git 身份与远程仓库 |
+| `gitf tag <version>` | 创建并推送发布标签 |
 | `gitf edit` | 用编辑器打开配置文件 |
 | `gitf help` | 显示帮助信息 |
+| `gitf version` | 显示版本号 |
 
 ### CLI 示例
 
@@ -23,6 +25,9 @@ gitf switch company
 
 # 编辑配置
 gitf edit
+
+# 创建发布标签
+gitf tag v1.0.0
 ```
 
 ---
@@ -144,6 +149,8 @@ gitf edit
 3. 输入提交描述，按 `Enter` 确认
 4. 自动执行 `git add .` → `git commit -m "type: desc"` → `git push`
 5. 在「提交结果」界面查看输出，按任意键返回
+6. 提交成功后，系统会询问是否创建发布标签（是/否）
+7. 选择「是」，输入版本号如 `v1.0.0`，标签将被创建并推送
 
 ---
 

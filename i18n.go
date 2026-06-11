@@ -150,6 +150,17 @@ var texts = map[Lang]map[string]string{
 		"commit_push_done":       "Committed and pushed successfully",
 		"commit_pushed_only":     "Pushed to remote",
 
+		// Tag
+		"tag_prompt":          "Create release tag? [y/N]",
+		"tag_input_ph":        "Enter version (e.g. v1.0.0)...",
+		"tag_result":          "Tag Result",
+		"tag_exists":          "Tag '%s' already exists",
+		"tag_success":         "Tag '%s' created and pushed",
+		"tag_git_tag_fail":    "git tag failed: %s",
+		"tag_git_push_fail":   "git push tag failed: %s",
+		"tag_version_empty":   "Version cannot be empty",
+		"tag_hint":            "[t] Tag",
+
 		// Action names
 		"action_provider_mgmt": "Manage",
 		"action_commit":        "Commit",
@@ -241,6 +252,7 @@ var texts = map[Lang]map[string]string{
 		"help_cmd_tui":  "  gitf [tui]               Launch TUI (default)",
 		"help_cmd_switch": "  gitf switch <id>         Switch to profile by ID",
 		"help_cmd_status": "  gitf status              Show current git identity & remote",
+		"help_cmd_tag":    "  gitf tag <version>       Create and push a release tag",
 		"help_cmd_edit": "  gitf edit                Open config in editor",
 		"help_cmd_help": "  gitf help                Show this help",
 
@@ -321,6 +333,17 @@ var texts = map[Lang]map[string]string{
 		"commit_git_push_fail":   "git push 失败: %s",
 		"commit_push_done":       "提交并推送完成",
 		"commit_pushed_only":     "已推送到远程",
+
+		// Tag
+		"tag_prompt":          "创建发布标签？[y/N]",
+		"tag_input_ph":        "输入版本号（如 v1.0.0）...",
+		"tag_result":          "标签结果",
+		"tag_exists":          "标签 '%s' 已存在",
+		"tag_success":         "标签 '%s' 已创建并推送",
+		"tag_git_tag_fail":    "git tag 失败: %s",
+		"tag_git_push_fail":   "git push tag 失败: %s",
+		"tag_version_empty":   "版本号不能为空",
+		"tag_hint":            "[t] 标签",
 
 		// Duplicate ID
 		"msg_duplicate_id": "ID '%s' 已被使用",
@@ -415,6 +438,7 @@ var texts = map[Lang]map[string]string{
 		"help_cmd_tui":  "  gitf [tui]               启动 TUI（默认）",
 		"help_cmd_switch": "  gitf switch <id>         按 ID 切换身份",
 		"help_cmd_status": "  gitf status              查看当前 Git 身份与远程仓库",
+		"help_cmd_tag":    "  gitf tag <version>       创建并推送发布标签",
 		"help_cmd_edit": "  gitf edit                用编辑器打开配置",
 		"help_cmd_help": "  gitf help                显示帮助信息",
 
@@ -482,6 +506,17 @@ var texts = map[Lang]map[string]string{
 		"commit_git_push_fail":   "git push に失敗: %s",
 		"commit_push_done":       "コミットしてプッシュしました",
 		"commit_pushed_only":     "リモートにプッシュしました",
+
+		// Tag
+		"tag_prompt":          "リリースタグを作成しますか？[y/N]",
+		"tag_input_ph":        "バージョンを入力（例: v1.0.0）...",
+		"tag_result":          "タグ結果",
+		"tag_exists":          "タグ '%s' は既に存在します",
+		"tag_success":         "タグ '%s' を作成してプッシュしました",
+		"tag_git_tag_fail":    "git tag に失敗: %s",
+		"tag_git_push_fail":   "git push tag に失敗: %s",
+		"tag_version_empty":   "バージョンを入力してください",
+		"tag_hint":            "[t] タグ",
 
 		// Duplicate ID
 		"msg_duplicate_id": "ID '%s' はすでに使用されています",
@@ -558,6 +593,7 @@ var texts = map[Lang]map[string]string{
 		"help_cmd_tui":        "  gitf [tui]               TUIを起動（デフォルト）",
 		"help_cmd_switch":     "  gitf switch <id>         IDで身分を切替",
 		"help_cmd_status":     "  gitf status              現在のGit身分とリモートを表示",
+		"help_cmd_tag":        "  gitf tag <version>       リリースタグを作成してプッシュ",
 		"help_cmd_edit":       "  gitf edit                エディタで設定を開く",
 		"help_cmd_help":       "  gitf help                このヘルプを表示",
 		"cli_switch_ok":       "プロファイル '%s' に切替ました",
@@ -623,6 +659,17 @@ var texts = map[Lang]map[string]string{
 		"commit_git_push_fail":   "git push 실패: %s",
 		"commit_push_done":       "커밋 및 푸시 완료",
 		"commit_pushed_only":     "원격으로 푸시했습니다",
+
+		// Tag
+		"tag_prompt":          "릴리스 태그를 생성하시겠습니까？[y/N]",
+		"tag_input_ph":        "버전을 입력하세요（예: v1.0.0）...",
+		"tag_result":          "태그 결과",
+		"tag_exists":          "태그 '%s'가 이미 존재합니다",
+		"tag_success":         "태그 '%s'를 생성하고 푸시했습니다",
+		"tag_git_tag_fail":    "git tag 실패: %s",
+		"tag_git_push_fail":   "git push tag 실패: %s",
+		"tag_version_empty":   "버전을 입력하세요",
+		"tag_hint":            "[t] 태그",
 
 		// Duplicate ID
 		"msg_duplicate_id": "ID '%s'는 이미 사용 중입니다",
@@ -699,6 +746,7 @@ var texts = map[Lang]map[string]string{
 		"help_cmd_tui":        "  gitf [tui]               TUI 실행 (기본값)",
 		"help_cmd_switch":     "  gitf switch <id>         ID로 신분 전환",
 		"help_cmd_status":     "  gitf status              현재 Git 신분과 원격 표시",
+		"help_cmd_tag":        "  gitf tag <version>       릴리스 태그를 생성하고 푸시",
 		"help_cmd_edit":       "  gitf edit                에디터로 설정 열기",
 		"help_cmd_help":       "  gitf help                도움말 표시",
 		"cli_switch_ok":       "프로필 '%s'로 전환했습니다",
@@ -764,6 +812,17 @@ var texts = map[Lang]map[string]string{
 		"commit_git_push_fail":   "git push 失敗: %s",
 		"commit_push_done":       "提交並推送完成",
 		"commit_pushed_only":     "已推送到遠端",
+
+		// Tag
+		"tag_prompt":          "建立發布標籤？[y/N]",
+		"tag_input_ph":        "輸入版本號（如 v1.0.0）...",
+		"tag_result":          "標籤結果",
+		"tag_exists":          "標籤 '%s' 已存在",
+		"tag_success":         "標籤 '%s' 已建立並推送",
+		"tag_git_tag_fail":    "git tag 失敗: %s",
+		"tag_git_push_fail":   "git push tag 失敗: %s",
+		"tag_version_empty":   "版本號不能為空",
+		"tag_hint":            "[t] 標籤",
 
 		// Duplicate ID
 		"msg_duplicate_id": "ID '%s' 已被使用",
@@ -840,6 +899,7 @@ var texts = map[Lang]map[string]string{
 		"help_cmd_tui":        "  gitf [tui]               啟動 TUI（預設）",
 		"help_cmd_switch":     "  gitf switch <id>         按 ID 切換身分",
 		"help_cmd_status":     "  gitf status              查看目前 Git 身分與遠端",
+		"help_cmd_tag":        "  gitf tag <version>       建立並推送發布標籤",
 		"help_cmd_edit":       "  gitf edit                用編輯器開啟設定",
 		"help_cmd_help":       "  gitf help                顯示說明資訊",
 		"cli_switch_ok":       "已切換至身分 '%s'",

@@ -8,8 +8,10 @@
 | `gitf tui` | Launch TUI (explicit) |
 | `gitf switch <id>` | Switch to profile by ID |
 | `gitf status` | Show current identity & remote |
+| `gitf tag <version>` | Create and push a release tag |
 | `gitf edit` | Open config in editor |
 | `gitf help` | Show help |
+| `gitf version` | Show version |
 
 ### CLI Examples
 
@@ -23,6 +25,9 @@ gitf switch company
 
 # Edit config
 gitf edit
+
+# Create a release tag
+gitf tag v1.0.0
 ```
 
 ---
@@ -144,6 +149,8 @@ Only provider management, account management, settings, and quit are available.
 3. Enter description, press `Enter`
 4. Auto `git add .` → `git commit -m "type: desc"` → `git push`
 5. View output, press any key to return
+6. After successful commit, you are prompted to create a release tag (Yes/No)
+7. Select Yes, enter a version like `v1.0.0`, and the tag is created and pushed
 
 ---
 

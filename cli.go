@@ -25,6 +25,9 @@ func runCLI(args []string, cfg *Config, cfgPath string, tr *Translator) int {
 	case "edit":
 		return cmdEdit(cfgPath, tr)
 
+	case "tag":
+		return cmdTag(args[1:], tr)
+
 	case "help", "--help", "-h", "-help":
 		printHelp(tr)
 		return 0
@@ -131,12 +134,40 @@ func cmdEdit(cfgPath string, tr *Translator) int {
 	return 0
 }
 
+func cmdTag(args []string, tr *Translator) int {
+	if len(args) < 1 {
+		fmt.Fprintf(os.Stderr, "%s\n", tr.Tr("cli_error", "usage: gitf tag <version>"))
+		return 1
+	}
+
+	version := args[0]
+	if IsInsideWorkTree() != nil {
+		fmt.Fprintf(os.Stderr, "%s\n", tr.Tr("cli_no_repo"))
+		return 1
+	}
+
+	if TagExists(version) {
+		fmt.Fprintf(os.Stderr, "%s\n", tr.Tr("cli_error", tr.Tr("tag_exists", version)))
+		return 1
+	}
+
+	output, err := CreateTag(version, tr)
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "%s\n", tr.Tr("cli_error", err))
+		fmt.Print(output)
+		return 1
+	}
+	fmt.Print(output)
+	return 0
+}
+
 func printHelp(tr *Translator) {
 	fmt.Printf("%s\n\n", tr.Tr("help_title"))
 	fmt.Printf("%s\n", tr.Tr("help_usage"))
 	fmt.Println(tr.Tr("help_cmd_tui"))
 	fmt.Println(tr.Tr("help_cmd_switch"))
 	fmt.Println(tr.Tr("help_cmd_status"))
+	fmt.Println(tr.Tr("help_cmd_tag"))
 	fmt.Println(tr.Tr("help_cmd_edit"))
 	fmt.Println(tr.Tr("help_cmd_help"))
 }

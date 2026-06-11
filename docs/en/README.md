@@ -1,3 +1,5 @@
+> [简体中文](../../README.md) · [繁體中文](../zh-TW/README.md) · [日本語](../ja/README.md) · [한국어](../ko/README.md)
+
 # GitFace
 
 Git Multi-Identity & Remote Manager — Switch identity, git provider, and SSH key with one key. TUI + CLI dual interface.
@@ -13,9 +15,10 @@ Git Multi-Identity & Remote Manager — Switch identity, git provider, and SSH k
 - **SSH Key Auto-Injection** — Automatically sets `core.sshCommand` on switch, no `~/.ssh/config` required
 - **SSH Key Scanning** — `[Ctrl+O]` scan `~/.ssh/` directory and fill key path instantly
 - **Conventional Commit** — Interactive commit type selection with auto add/commit/push
+- **Release Tag** — Create and push release tags from TUI after commit or via CLI
 - **Dual Interface** — TUI + CLI subcommands
 - **Mouse Scroll** — All lists support scroll wheel navigation
-- **Multi-language** — Auto-detected from env or config (zh-CN / en)
+- **Multi-language** — Auto-detected from env or config (zh-CN / zh-TW / en / ja / ko)
 - **Zero-config** — Auto-generates config on first run
 
 ---
@@ -46,11 +49,7 @@ gitf switch work    # Quick switch profile
 
 ## Documentation
 
-| Document | Link |
-|---|---|
-| Install | [Install Guide](install.md) |
-| Usage | [Usage Guide](usage.md) |
-| Config | [Config Reference](config.md) |
+[Install](install.md) · [Usage](usage.md) · [Config](config.md)
 
 ---
 

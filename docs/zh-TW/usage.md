@@ -8,8 +8,10 @@
 | `gitf tui` | 同上 |
 | `gitf switch <id>` | 按 ID 切換身分 |
 | `gitf status` | 查看目前 Git 身分與遠端 |
+| `gitf tag <version>` | 建立並推送發布標籤 |
 | `gitf edit` | 用編輯器開啟配置檔案 |
 | `gitf help` | 顯示說明資訊 |
+| `gitf version` | 顯示版本號 |
 
 ### CLI 範例
 
@@ -17,6 +19,7 @@
 gitf status
 gitf switch personal
 gitf edit
+gitf tag v1.0.0
 ```
 
 ---
@@ -138,6 +141,8 @@ gitf edit
 3. 輸入提交描述，按 `Enter` 確認
 4. 自動執行 `git add .` → `git commit -m "type: desc"` → `git push`
 5. 在「提交結果」介面檢視輸出，按任意鍵返回
+6. 提交成功後，系統會詢問是否建立發布標籤（是/否）
+7. 選擇「是」，輸入版本號如 `v1.0.0`，標籤將被建立並推送
 
 ---
 

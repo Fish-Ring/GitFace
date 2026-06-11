@@ -147,6 +147,34 @@ func findMatchingProfile(cfg *Config, localName, localEmail string) *Profile {
 	return nil
 }
 
+func TagExists(version string) bool {
+	_, err := runGit("rev-parse", "refs/tags/"+version)
+	return err == nil
+}
+
+func CreateTag(version string, tr *Translator) (string, error) {
+	var output strings.Builder
+
+	writeLine := func(format string, a ...any) {
+		output.WriteString(fmt.Sprintf(format, a...))
+	}
+
+	writeLine("> git tag %s\n", version)
+	if _, err := runGit("tag", version); err != nil {
+		return output.String(), fmt.Errorf(tr.Tr("tag_git_tag_fail", err))
+	}
+
+	writeLine("> git push origin %s\n", version)
+	out, err := runGit("push", "origin", version)
+	output.WriteString(out)
+	if err != nil {
+		return output.String(), fmt.Errorf(tr.Tr("tag_git_push_fail", strings.TrimSpace(out)))
+	}
+
+	writeLine("\n%s\n", tr.Tr("tag_success", version))
+	return output.String(), nil
+}
+
 func RunConventionalCommit(commitType, desc string, tr *Translator) (string, error) {
 	var output strings.Builder
 	msg := fmt.Sprintf("%s: %s", commitType, desc)

@@ -8,8 +8,10 @@
 | `gitf tui` | TUI 실행 (명시적) |
 | `gitf switch <id>` | ID로 프로필 전환 |
 | `gitf status` | 현재 신분과 원격 표시 |
+| `gitf tag <version>` | 릴리스 태그를 생성하고 푸시 |
 | `gitf edit` | 에디터로 설정 열기 |
 | `gitf help` | 도움말 표시 |
+| `gitf version` | 버전 표시 |
 
 ### CLI 예시
 
@@ -17,6 +19,7 @@
 gitf status
 gitf switch personal
 gitf edit
+gitf tag v1.0.0
 ```
 
 ---
@@ -134,6 +137,8 @@ gitf edit
 3. 설명 입력, `Enter`로 확인
 4. 자동 `git add .` → `git commit -m "type: desc"` → `git push`
 5. 결과 확인, 아무 키나 눌러 돌아가기
+6. 커밋 성공 후 릴리스 태그 생성 여부가 확인됩니다 (예/아니오)
+7. '예'를 선택하고 `v1.0.0`과 같은 버전을 입력하면 태그가 생성되어 푸시됩니다
 
 ---
 

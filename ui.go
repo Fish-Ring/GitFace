@@ -24,6 +24,8 @@ const (
 	stateProviderPicker
 	stateSettings
 	stateSSHKeyPicker
+	stateTagPrompt
+	stateTagInput
 )
 
 type refreshMsg struct {
@@ -73,6 +75,11 @@ type copiedMsg struct {
 	err error
 }
 
+type tagResultMsg struct {
+	output string
+	err    error
+}
+
 type settingsSavedMsg struct {
 	err error
 }
@@ -99,6 +106,10 @@ type model struct {
 	commitInput textinput.Model
 	commitOutput string
 	commitErr   error
+	canTag      bool
+
+	tagInput  textinput.Model
+	tagCursor int
 
 	accountEditIdx int
 	accountInputs  []textinput.Model
@@ -143,12 +154,18 @@ func NewModel(cfg *Config, cfgPath string, tr *Translator) model {
 	ti.Focus()
 	ti.CharLimit = 100
 
+	tgi := textinput.New()
+	tgi.Placeholder = "v1.0.0"
+	tgi.Focus()
+	tgi.CharLimit = 50
+
 	return model{
 		cfg:         cfg,
 		cfgPath:     cfgPath,
 		tr:          tr,
 		state:       stateNormal,
 		commitInput: ti,
+		tagInput:    tgi,
 		cursor:      0,
 		width:       80,
 		height:      24,
@@ -185,6 +202,13 @@ func (m model) copyCmd(text string) tea.Cmd {
 	return func() tea.Msg {
 		err := clipboard.WriteAll(text)
 		return copiedMsg{err: err}
+	}
+}
+
+func (m model) createTagCmd(version string) tea.Cmd {
+	return func() tea.Msg {
+		output, err := CreateTag(version, m.tr)
+		return tagResultMsg{output: output, err: err}
 	}
 }
 
@@ -231,6 +255,18 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		return m, m.refreshCmd()
 
 	case commitResultMsg:
+		m.commitOutput = msg.output
+		m.commitErr = msg.err
+		if msg.err == nil {
+			m.state = stateTagPrompt
+			m.tagCursor = 1
+			m.tagInput.SetValue("")
+		} else {
+			m.state = stateCommitOutput
+		}
+		return m, nil
+
+	case tagResultMsg:
 		m.commitOutput = msg.output
 		m.commitErr = msg.err
 		m.state = stateCommitOutput
@@ -372,6 +408,10 @@ func (m model) handleKeyMsg(msg tea.KeyMsg) (tea.Model, tea.Cmd) {
 			m.errMsg = ""
 			return m, nil
 		}
+	case stateTagPrompt:
+		return m.handleTagPromptKey(msg)
+	case stateTagInput:
+		return m.handleTagInputKey(msg)
 	case stateAccountManage:
 		return m.handleAccountManageKey(msg)
 	case stateAccountForm:
@@ -658,6 +698,10 @@ func (m model) handleMouseEvent(msg tea.MouseMsg) model {
 			if m.sshKeyCursor > 0 {
 				m.sshKeyCursor--
 			}
+		case stateTagPrompt:
+			if m.tagCursor > 0 {
+				m.tagCursor--
+			}
 		case stateSettings:
 			if m.settingsCursor > 0 {
 				m.settingsCursor--
@@ -701,6 +745,10 @@ func (m model) handleMouseEvent(msg tea.MouseMsg) model {
 		case stateSSHKeyPicker:
 			if m.sshKeyCursor < len(m.sshKeys)-1 {
 				m.sshKeyCursor++
+			}
+		case stateTagPrompt:
+			if m.tagCursor < 1 {
+				m.tagCursor++
 			}
 		case stateSettings:
 			if m.settingsCursor < len(m.settingsItems())-1 {
@@ -962,6 +1010,59 @@ func (m model) handleSSHKeyPickerKey(msg tea.KeyMsg) (tea.Model, tea.Cmd) {
 		return m, nil
 	}
 	return m, nil
+}
+
+func (m model) handleTagPromptKey(msg tea.KeyMsg) (tea.Model, tea.Cmd) {
+	switch msg.String() {
+	case "up", "k":
+		if m.tagCursor > 0 {
+			m.tagCursor--
+		}
+		return m, nil
+	case "down", "j":
+		if m.tagCursor < 1 {
+			m.tagCursor++
+		}
+		return m, nil
+	case "enter":
+		if m.tagCursor == 0 {
+			m.state = stateTagInput
+			m.tagInput.SetValue("")
+			return m, textinput.Blink
+		}
+		m.state = stateNormal
+		m.commitOutput = ""
+		m.commitErr = nil
+		return m, nil
+	case "esc":
+		m.state = stateNormal
+		m.commitOutput = ""
+		m.commitErr = nil
+		return m, nil
+	}
+	return m, nil
+}
+
+func (m model) handleTagInputKey(msg tea.KeyMsg) (tea.Model, tea.Cmd) {
+	switch msg.String() {
+	case "enter":
+		version := m.tagInput.Value()
+		if version == "" {
+			m.errMsg = m.tr.Tr("tag_version_empty")
+			return m, nil
+		}
+		m.state = stateNormal
+		return m, m.createTagCmd(version)
+	case "esc":
+		m.state = stateNormal
+		m.commitOutput = ""
+		m.commitErr = nil
+		return m, nil
+	default:
+		var cmd tea.Cmd
+		m.tagInput, cmd = m.tagInput.Update(msg)
+		return m, cmd
+	}
 }
 
 func (m model) handleProviderManageKey(msg tea.KeyMsg) (tea.Model, tea.Cmd) {
@@ -1399,7 +1500,7 @@ func (m model) View() string {
 	content.WriteString("\n\n")
 
 	switch m.state {
-	case stateCommitSelect, stateCommitInput, stateCommitOutput:
+	case stateCommitSelect, stateCommitInput, stateCommitOutput, stateTagPrompt, stateTagInput:
 		m.renderCommitFlow(&content)
 	case stateAccountManage:
 		m.renderAccountManage(&content)
@@ -1571,6 +1672,35 @@ func (m model) renderCommitFlow(s *strings.Builder) {
 				"  "+out+"\n\n"+
 				dimStyle.Render("  "+m.tr.Tr("prompt_any_key")),
 		))
+
+	case stateTagPrompt:
+		var buf strings.Builder
+		buf.WriteString(labelStyle.Render(" "+m.tr.Tr("commit_result"))+"\n\n")
+		if m.commitOutput != "" {
+			buf.WriteString("  " + m.commitOutput + "\n\n")
+		}
+		buf.WriteString(labelStyle.Render(" "+m.tr.Tr("tag_prompt")) + "\n\n")
+		opts := []string{"Yes", "No"}
+		for i, opt := range opts {
+			cursor := "  "
+			if i == m.tagCursor {
+				cursor = cursorStyle.Render("▸ ")
+			}
+			buf.WriteString(fmt.Sprintf("  %s%s\n", cursor, keyStyle.Render(opt)))
+		}
+		buf.WriteString("\n" + dimStyle.Render("  "+m.tr.Tr("prompt_cancel")))
+		s.WriteString(m.centerBlock(buf.String()))
+
+	case stateTagInput:
+		var buf strings.Builder
+		buf.WriteString(labelStyle.Render(" "+m.tr.Tr("tag_result"))+"\n\n")
+		if m.commitOutput != "" {
+			buf.WriteString("  " + m.commitOutput + "\n\n")
+		}
+		buf.WriteString(labelStyle.Render(" "+m.tr.Tr("tag_input_ph"))+"\n\n"+
+			"  "+m.tagInput.View()+"\n\n"+
+			dimStyle.Render("  "+m.tr.Tr("prompt_confirm_cancel")))
+		s.WriteString(m.centerBlock(buf.String()))
 	}
 }
 

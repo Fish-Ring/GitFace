@@ -8,8 +8,10 @@
 | `gitf tui` | TUIを起動（明示的） |
 | `gitf switch <id>` | IDでプロファイルを切替 |
 | `gitf status` | 現在の身分とリモートを表示 |
+| `gitf tag <version>` | リリースタグを作成してプッシュ |
 | `gitf edit` | エディタで設定を開く |
 | `gitf help` | ヘルプを表示 |
+| `gitf version` | バージョンを表示 |
 
 ### CLI サンプル
 
@@ -17,6 +19,7 @@
 gitf status
 gitf switch personal
 gitf edit
+gitf tag v1.0.0
 ```
 
 ---
@@ -134,6 +137,8 @@ gitf edit
 3. 説明を入力、`Enter` で確定
 4. 自動 `git add .` → `git commit -m "type: desc"` → `git push`
 5. 結果を確認、任意キーで戻る
+6. コミット成功後、リリースタグの作成確認が出ます（はい/いいえ）
+7. 「はい」を選択し、`v1.0.0` のようにバージョンを入力すると、タグが作成されてプッシュされます
 
 ---
 

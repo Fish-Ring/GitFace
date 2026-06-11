@@ -2,17 +2,43 @@ name: Release
 
 on:
   push:
-    branches: [main]
     tags: ["v*"]
-  pull_request:
-    branches: [main]
 
 jobs:
   build:
     strategy:
       matrix:
-        os: [windows-latest, ubuntu-latest, macos-latest]
-        arch: [amd64, arm64]
+        include:
+          - os: windows-2022
+            arch: amd64
+            goos: windows
+            goext: ".exe"
+            name: gitf-windows-amd64
+          - os: windows-2022
+            arch: arm64
+            goos: windows
+            goext: ".exe"
+            name: gitf-windows-arm64
+          - os: ubuntu-24.04
+            arch: amd64
+            goos: linux
+            goext: ""
+            name: gitf-linux-amd64
+          - os: ubuntu-24.04
+            arch: arm64
+            goos: linux
+            goext: ""
+            name: gitf-linux-arm64
+          - os: macos-14
+            arch: amd64
+            goos: darwin
+            goext: ""
+            name: gitf-macos-amd64
+          - os: macos-14
+            arch: arm64
+            goos: darwin
+            goext: ""
+            name: gitf-macos-arm64
     runs-on: ${{ matrix.os }}
     steps:
       - uses: actions/checkout@v4
@@ -23,25 +49,22 @@ jobs:
       - name: Build
         shell: bash
         run: |
-          # map runner OS to GOOS
-          case "${{ matrix.os }}" in
-            windows*) goos="windows"; ext=".exe" ;;
-            ubuntu*)  goos="linux";   ext="" ;;
-            macos*)   goos="darwin";  ext="" ;;
-          esac
-          goarch="${{ matrix.arch }}"
-          suffix="${goos}${ext}"
-          [ "$goarch" = "arm64" ] && suffix="${goos}-arm64${ext}" || suffix="${goos}${ext}"
-          out="gitf-${suffix}"
-          CGO_ENABLED=0 GOOS=$goos GOARCH=$goarch go build -ldflags="-s -w" -o "$out" .
+          CGO_ENABLED=0 GOOS=${{ matrix.goos }} GOARCH=${{ matrix.arch }} go build -ldflags="-s -w" -o gitf${{ matrix.goext }} .
+
+      - name: Package (unix)
+        if: runner.os != 'Windows'
+        run: tar czf ${{ matrix.name }}.tar.gz gitf
+
+      - name: Package (windows)
+        if: runner.os == 'Windows'
+        run: Compress-Archive -Path gitf.exe -DestinationPath ${{ matrix.name }}.zip
 
       - uses: actions/upload-artifact@v4
         with:
-          name: gitf-${{ matrix.os }}-${{ matrix.arch }}
-          path: gitf-*
+          name: ${{ matrix.name }}
+          path: ${{ matrix.name }}.*
 
   release:
-    if: startsWith(github.ref, 'refs/tags/v')
     needs: [build]
     runs-on: ubuntu-latest
     permissions:
@@ -54,5 +77,7 @@ jobs:
 
       - uses: softprops/action-gh-release@v2
         with:
-          files: gitf-*
+          files: |
+            *.zip
+            *.tar.gz
           generate_release_notes: true
