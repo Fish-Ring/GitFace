@@ -846,7 +846,7 @@ func (m model) confirmDeleteProfile(idx int) (tea.Model, tea.Cmd) {
 func (m model) startAccountForm(idx int) (tea.Model, tea.Cmd) {
 	m.accountEditIdx = idx
 	m.delMode = false
-	inputs := make([]textinput.Model, 6)
+	inputs := make([]textinput.Model, 7)
 	placeholders := []string{
 		m.tr.Tr("account_id_ph"),
 		m.tr.Tr("account_name_ph"),
@@ -854,6 +854,7 @@ func (m model) startAccountForm(idx int) (tea.Model, tea.Cmd) {
 		m.tr.Tr("account_gitemail_ph"),
 		m.tr.Tr("account_provider_ph"),
 		m.tr.Tr("account_ssh_identity_ph"),
+		m.tr.Tr("account_remote_paths_ph"),
 	}
 	for i := range inputs {
 		ti := textinput.New()
@@ -877,6 +878,11 @@ func (m model) startAccountForm(idx int) (tea.Model, tea.Cmd) {
 			}
 		}
 		inputs[5].SetValue(p.SSHIdentityFile)
+		var parts []string
+		for k, v := range p.RemotePaths {
+			parts = append(parts, k+"="+v)
+		}
+		inputs[6].SetValue(strings.Join(parts, ", "))
 	}
 
 	m.accountFocused = 0
@@ -908,7 +914,7 @@ func (m model) handleAccountFormKey(msg tea.KeyMsg) (tea.Model, tea.Cmd) {
 		return m, nil
 
 	case "ctrl+o":
-		if m.accountFocused == 5 {
+		if m.accountFocused == 6 {
 			return m.startSSHKeyScan()
 		}
 		return m, nil
@@ -920,7 +926,7 @@ func (m model) handleAccountFormKey(msg tea.KeyMsg) (tea.Model, tea.Cmd) {
 		return m, nil
 
 	case "enter":
-		values := make([]string, 6)
+		values := make([]string, 7)
 		for i, input := range m.accountInputs {
 			values[i] = strings.TrimSpace(input.Value())
 		}
@@ -944,6 +950,24 @@ func (m model) handleAccountFormKey(msg tea.KeyMsg) (tea.Model, tea.Cmd) {
 			}
 		}
 
+		remotePaths := make(map[string]string)
+		if values[6] != "" {
+			for _, pair := range strings.Split(values[6], ",") {
+				pair = strings.TrimSpace(pair)
+				if pair == "" {
+					continue
+				}
+				kv := strings.SplitN(pair, "=", 2)
+				if len(kv) == 2 {
+					k := strings.TrimSpace(kv[0])
+					v := strings.TrimSpace(kv[1])
+					if k != "" && v != "" {
+						remotePaths[k] = v
+					}
+				}
+			}
+		}
+
 		profile := Profile{
 			ID:              values[0],
 			Name:            values[1],
@@ -951,6 +975,7 @@ func (m model) handleAccountFormKey(msg tea.KeyMsg) (tea.Model, tea.Cmd) {
 			GitEmail:        values[3],
 			ProviderID:      providerID,
 			SSHIdentityFile: values[5],
+			RemotePaths:     remotePaths,
 		}
 
 		if m.accountEditIdx >= 0 && m.accountEditIdx < len(m.cfg.Profiles) {
@@ -1750,8 +1775,8 @@ func (m model) renderAccountForm(s *strings.Builder) {
 	var buf strings.Builder
 	buf.WriteString(labelStyle.Render(" "+title) + "\n\n")
 
-	labels := []string{"ID:", "Name:", "Git Name:", "Git Email:", "Provider:", "SSH Key:"}
-	descs := []string{"account_id_desc", "account_name_desc", "account_gitname_desc", "account_gitemail_desc", "account_provider_desc", "account_ssh_identity_desc"}
+	labels := []string{"ID:", "Name:", "Git Name:", "Git Email:", "Provider:", "SSH Key:", "Remote Paths:"}
+	descs := []string{"account_id_desc", "account_name_desc", "account_gitname_desc", "account_gitemail_desc", "account_provider_desc", "account_ssh_identity_desc", "account_remote_paths_desc"}
 	for i, input := range m.accountInputs {
 		lbl := labels[i]
 		if i == m.accountFocused {
@@ -1765,7 +1790,7 @@ func (m model) renderAccountForm(s *strings.Builder) {
 	}
 
 	buf.WriteString("\n\n  " + dimStyle.Render(m.tr.Tr("prompt_tab_next")))
-	if m.accountFocused == 5 {
+	if m.accountFocused == 6 {
 		buf.WriteString("\n  " + dimStyle.Render(m.tr.Tr("ssh_scan_hint")))
 	}
 	if m.accountFocused == 4 {

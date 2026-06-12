@@ -103,6 +103,20 @@ func SwitchProfile(p *Profile, providers []Provider, tr *Translator) (string, er
 					if newURL == "" {
 						continue
 					}
+					// Apply RemotePaths override
+					if p.RemotePaths != nil {
+						if m := sshPattern.FindStringSubmatch(currentURL); len(m) == 3 {
+							key := m[1] + ":" + strings.TrimSuffix(m[2], ".git")
+							if mappedPath, ok := p.RemotePaths[key]; ok {
+								newURL = fmt.Sprintf("git@%s:%s", provider.Host, mappedPath)
+							}
+						} else if m := httpsPattern.FindStringSubmatch(currentURL); len(m) == 4 {
+							key := m[1] + ":" + m[2] + "/" + strings.TrimSuffix(m[3], ".git")
+							if mappedPath, ok := p.RemotePaths[key]; ok {
+								newURL = fmt.Sprintf("git@%s:%s", provider.Host, mappedPath)
+							}
+						}
+					}
 					if newURL == currentURL {
 						continue
 					}

@@ -17,12 +17,13 @@ type Provider struct {
 }
 
 type Profile struct {
-	ID              string `json:"id"`
-	Name            string `json:"name"`
-	GitName         string `json:"git_name"`
-	GitEmail        string `json:"git_email"`
-	ProviderID      string `json:"provider_id,omitempty"`
-	SSHIdentityFile string `json:"ssh_identity_file"`
+	ID              string            `json:"id"`
+	Name            string            `json:"name"`
+	GitName         string            `json:"git_name"`
+	GitEmail        string            `json:"git_email"`
+	ProviderID      string            `json:"provider_id,omitempty"`
+	SSHIdentityFile string            `json:"ssh_identity_file"`
+	RemotePaths     map[string]string `json:"remote_paths,omitempty"`
 }
 
 type Config struct {
