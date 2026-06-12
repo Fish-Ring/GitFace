@@ -420,6 +420,9 @@ func (m model) handleKeyMsg(msg tea.KeyMsg) (tea.Model, tea.Cmd) {
 			m.errMsg = ""
 			return m, nil
 		default:
+			if m.commitOutput == "..." {
+				return m, nil
+			}
 			m.state = stateNormal
 			m.commitOutput = ""
 			m.commitErr = nil
