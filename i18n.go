@@ -90,7 +90,7 @@ func (t *Translator) Tr(key string, args ...interface{}) string {
 var texts = map[Lang]map[string]string{
 	EN: {
 		// App
-		"app_title": "GitFace v1.0.1",
+		"app_title": "GitFace v1.0.2",
 
 		// Status section
 		"label_status":  "[Status]",
@@ -133,7 +133,7 @@ var texts = map[Lang]map[string]string{
 		// Prompts
 		"prompt_select_type":     "Select commit type:",
 		"prompt_enter_desc_ph":   "Enter commit description...",
-		"prompt_confirm_cancel":  "[F2] Confirm  [Esc] Cancel",
+		"prompt_confirm_cancel":  "[Enter] Confirm  [Esc] Cancel",
 		"prompt_cancel":          "[Esc] Cancel",
 		"prompt_any_key":         "Press any key to return",
 
@@ -149,6 +149,7 @@ var texts = map[Lang]map[string]string{
 		"commit_git_push_fail":   "git push failed: %s",
 		"commit_push_done":       "Committed and pushed successfully",
 		"commit_pushed_only":     "Pushed to remote",
+		"commit_confirm_hint":    "[F2] Confirm  [Esc] Cancel",
 
 		// Tag
 		"tag_prompt":          "Create release tag? [y/N]",
@@ -281,12 +282,12 @@ var texts = map[Lang]map[string]string{
 		"cli_clean":           "Status:  Clean",
 		"cli_edit_opening":    "Opening config in editor...",
 		"cli_no_repo":         "Not in a Git repository",
-		"cli_version":         "GitFace v1.0.1",
+		"cli_version":         "GitFace v1.0.2",
 	},
 
 	ZH: {
 		// App
-		"app_title": "GitFace v1.0.1",
+		"app_title": "GitFace v1.0.2",
 
 		// Status section
 		"label_status":  "【当前状态】",
@@ -329,7 +330,7 @@ var texts = map[Lang]map[string]string{
 		// Prompts
 		"prompt_select_type":     "选择提交类型:",
 		"prompt_enter_desc_ph":   "输入提交描述...",
-		"prompt_confirm_cancel":  "[F2] 确认  [Esc] 取消",
+		"prompt_confirm_cancel":  "[Enter] 确认  [Esc] 取消",
 		"prompt_cancel":          "[Esc] 取消",
 		"prompt_any_key":         "按任意键返回",
 
@@ -345,6 +346,7 @@ var texts = map[Lang]map[string]string{
 		"commit_git_push_fail":   "git push 失败: %s",
 		"commit_push_done":       "提交并推送完成",
 		"commit_pushed_only":     "已推送到远程",
+		"commit_confirm_hint":    "[F2] 确认  [Esc] 取消",
 
 		// Tag
 		"tag_prompt":          "创建发布标签？[y/N]",
@@ -479,11 +481,11 @@ var texts = map[Lang]map[string]string{
 		"cli_clean":           "状态:  干净",
 		"cli_edit_opening":    "正在打开编辑器...",
 		"cli_no_repo":         "不在 Git 仓库中",
-		"cli_version":         "GitFace v1.0.1",
+		"cli_version":         "GitFace v1.0.2",
 	},
 
 	JA: {
-		"app_title":           "GitFace v1.0.1",
+		"app_title":           "GitFace v1.0.2",
 		"label_status":        "【ステータス】",
 		"label_branch":        "ブランチ:",
 		"label_route":         "リモート:",
@@ -516,7 +518,7 @@ var texts = map[Lang]map[string]string{
 		"sp_ssh_fail":       "SSH コマンドの設定に失敗: %s",
 		"prompt_select_type":  "コミットタイプを選択:",
 		"prompt_enter_desc_ph": "コミット説明を入力...",
-		"prompt_confirm_cancel": "[F2] 確認  [Esc] キャンセル",
+		"prompt_confirm_cancel": "[Enter] 確認  [Esc] キャンセル",
 		"prompt_cancel":       "[Esc] キャンセル",
 		"prompt_any_key":      "任意キーで戻る",
 		"commit_result":       "コミット結果",
@@ -530,6 +532,7 @@ var texts = map[Lang]map[string]string{
 		"commit_git_push_fail":   "git push に失敗: %s",
 		"commit_push_done":       "コミットしてプッシュしました",
 		"commit_pushed_only":     "リモートにプッシュしました",
+		"commit_confirm_hint":    "[F2] 確認  [Esc] キャンセル",
 
 		// Tag
 		"tag_prompt":          "リリースタグを作成しますか？[y/N]",
@@ -645,11 +648,11 @@ var texts = map[Lang]map[string]string{
 		"cli_clean":           "状態:  クリーン",
 		"cli_edit_opening":    "エディタを開いています...",
 		"cli_no_repo":         "Gitリポジトリではありません",
-		"cli_version":         "GitFace v1.0.1",
+		"cli_version":         "GitFace v1.0.2",
 	},
 
 	KO: {
-		"app_title":           "GitFace v1.0.1",
+		"app_title":           "GitFace v1.0.2",
 		"label_status":        "【상태】",
 		"label_branch":        "브랜치:",
 		"label_route":         "원격:",
@@ -682,7 +685,7 @@ var texts = map[Lang]map[string]string{
 		"sp_ssh_fail":       "SSH 명령 설정 실패: %s",
 		"prompt_select_type":  "커밋 유형 선택:",
 		"prompt_enter_desc_ph": "커밋 설명을 입력하세요...",
-		"prompt_confirm_cancel": "[F2] 확인  [Esc] 취소",
+		"prompt_confirm_cancel": "[Enter] 확인  [Esc] 취소",
 		"prompt_cancel":       "[Esc] 취소",
 		"prompt_any_key":      "아무 키나 눌러 돌아가기",
 		"commit_result":       "커밋 결과",
@@ -696,6 +699,7 @@ var texts = map[Lang]map[string]string{
 		"commit_git_push_fail":   "git push 실패: %s",
 		"commit_push_done":       "커밋 및 푸시 완료",
 		"commit_pushed_only":     "원격으로 푸시했습니다",
+		"commit_confirm_hint":    "[F2] 확인  [Esc] 취소",
 
 		// Tag
 		"tag_prompt":          "릴리스 태그를 생성하시겠습니까？[y/N]",
@@ -811,11 +815,11 @@ var texts = map[Lang]map[string]string{
 		"cli_clean":           "상태:  클린",
 		"cli_edit_opening":    "에디터를 열고 있습니다...",
 		"cli_no_repo":         "Git 저장소가 아닙니다",
-		"cli_version":         "GitFace v1.0.1",
+		"cli_version":         "GitFace v1.0.2",
 	},
 
 	ZH_TW: {
-		"app_title":           "GitFace v1.0.1",
+		"app_title":           "GitFace v1.0.2",
 		"label_status":        "【目前狀態】",
 		"label_branch":        "分支:",
 		"label_route":         "遠端:",
@@ -848,7 +852,7 @@ var texts = map[Lang]map[string]string{
 		"sp_ssh_fail":       "設定 SSH 命令失敗: %s",
 		"prompt_select_type":  "選擇提交類型:",
 		"prompt_enter_desc_ph": "輸入提交描述...",
-		"prompt_confirm_cancel": "[F2] 確認  [Esc] 取消",
+		"prompt_confirm_cancel": "[Enter] 確認  [Esc] 取消",
 		"prompt_cancel":       "[Esc] 取消",
 		"prompt_any_key":      "按任意鍵返回",
 		"commit_result":       "提交結果",
@@ -862,6 +866,7 @@ var texts = map[Lang]map[string]string{
 		"commit_git_push_fail":   "git push 失敗: %s",
 		"commit_push_done":       "提交並推送完成",
 		"commit_pushed_only":     "已推送到遠端",
+		"commit_confirm_hint":    "[F2] 確認  [Esc] 取消",
 
 		// Tag
 		"tag_prompt":          "建立發布標籤？[y/N]",
@@ -977,6 +982,6 @@ var texts = map[Lang]map[string]string{
 		"cli_clean":           "狀態:  乾淨",
 		"cli_edit_opening":    "正在開啟編輯器...",
 		"cli_no_repo":         "不在 Git 儲存庫中",
-		"cli_version":         "GitFace v1.0.1",
+		"cli_version":         "GitFace v1.0.2",
 	},
 }

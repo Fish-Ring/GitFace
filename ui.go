@@ -1858,7 +1858,7 @@ func (m model) renderCommitFlow(s *strings.Builder) {
 		s.WriteString(m.centerBlock(
 			labelStyle.Render(" "+m.tr.Tr("commit_header", m.commitType))+"\n\n"+
 				"  "+m.commitInput.View()+"\n\n"+
-				dimStyle.Render("  "+m.tr.Tr("prompt_confirm_cancel")),
+				dimStyle.Render("  "+m.tr.Tr("commit_confirm_hint")),
 		))
 
 	case stateCommitOutput:
