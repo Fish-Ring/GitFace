@@ -161,12 +161,11 @@ func NewModel(cfg *Config, cfgPath string, tr *Translator) model {
 	ti := textarea.New()
 	ti.Placeholder = tr.Tr("prompt_enter_desc_ph")
 	ti.ShowLineNumbers = false
-	ti.SetHeight(3)
+	ti.SetHeight(8)
 	ti.SetWidth(80)
-	ti.CharLimit = 500
+	ti.CharLimit = 1000
 	ti.Prompt = ""
 	ti.Focus()
-	ti.KeyMap.InsertNewline.SetKeys("ctrl+j", "ctrl+m")
 
 	tgi := textinput.New()
 	tgi.Placeholder = "v1.0.0"
@@ -236,6 +235,14 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			w = 40
 		}
 		m.commitInput.SetWidth(w)
+		h := msg.Height - 14
+		if h < 3 {
+			h = 3
+		}
+		if h > 30 {
+			h = 30
+		}
+		m.commitInput.SetHeight(h)
 		return m, nil
 
 	case tea.MouseMsg:
@@ -687,26 +694,14 @@ func (m model) handleCommitSelectKey(msg tea.KeyMsg) (tea.Model, tea.Cmd) {
 }
 
 func (m model) handleCommitInputKey(msg tea.KeyMsg) (tea.Model, tea.Cmd) {
-	// Paste detection: forward paste keys to textarea without triggering submit
-	if msg.Paste {
-		if msg.Type == tea.KeyEnter {
-			m.commitInput.InsertString("\n")
-		} else {
-			var cmd tea.Cmd
-			m.commitInput, cmd = m.commitInput.Update(msg)
-			return m, cmd
-		}
-		return m, nil
-	}
-
-	switch msg.String() {
-	case "esc":
+	switch {
+	case msg.Type == tea.KeyEsc:
 		m.state = stateNormal
 		m.commitInput.Blur()
 		m.infoMsg = ""
 		m.errMsg = ""
 		return m, nil
-	case "enter":
+	case msg.Type == tea.KeyF2:
 		desc := strings.TrimSpace(m.commitInput.Value())
 		if desc == "" {
 			m.errMsg = m.tr.Tr("msg_desc_empty")
