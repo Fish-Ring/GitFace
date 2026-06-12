@@ -26,6 +26,8 @@ const (
 	stateSSHKeyPicker
 	stateTagPrompt
 	stateTagInput
+	stateRepoConfig
+	stateRepoConfigEdit
 )
 
 type refreshMsg struct {
@@ -132,6 +134,12 @@ type model struct {
 	sshKeyCursor      int
 	providerPickList  []Provider
 	providerPickCursor int
+
+	repoConfig       *RepoConfig
+	repoConfigCursor int
+	repoConfigKeys   []string
+	repoConfigProviders []Provider
+	repoConfigInput  textinput.Model
 
 	width  int
 	height int
@@ -426,12 +434,16 @@ func (m model) handleKeyMsg(msg tea.KeyMsg) (tea.Model, tea.Cmd) {
 		return m.handleSettingsKey(msg)
 	case stateSSHKeyPicker:
 		return m.handleSSHKeyPickerKey(msg)
+	case stateRepoConfig:
+		return m.handleRepoConfigKey(msg)
+	case stateRepoConfigEdit:
+		return m.handleRepoConfigEditKey(msg)
 	}
 	return m, nil
 }
 
 func (m model) totalItems() int {
-	return len(m.cfg.Profiles) + 4
+	return len(m.cfg.Profiles) + 5
 }
 
 func (m model) dispatchAction() (tea.Model, tea.Cmd) {
@@ -452,18 +464,35 @@ func (m model) dispatchAction() (tea.Model, tea.Cmd) {
 	case m.cursor == np+1:
 		m.errMsg = ""
 		m.infoMsg = ""
+		if !m.isRepo {
+			m.errMsg = m.tr.Tr("msg_cannot_commit")
+			return m, nil
+		}
+		rc := LoadRepoConfig()
+		m.repoConfig = rc
+		m.repoConfigProviders = m.cfg.Providers
+		m.repoConfigKeys = make([]string, 0, len(m.cfg.Providers))
+		for _, p := range m.cfg.Providers {
+			m.repoConfigKeys = append(m.repoConfigKeys, p.ID)
+		}
+		m.repoConfigCursor = 0
+		m.state = stateRepoConfig
+		return m, nil
+	case m.cursor == np+2:
+		m.errMsg = ""
+		m.infoMsg = ""
 		m.state = stateAccountManage
 		m.accountCursor = 0
 		m.delMode = false
 		return m, nil
-	case m.cursor == np+2:
+	case m.cursor == np+3:
 		m.errMsg = ""
 		m.infoMsg = ""
 		m.state = stateProviderManage
 		m.providerCursor = 0
 		m.providerDelMode = false
 		return m, nil
-	case m.cursor == np+3:
+	case m.cursor == np+4:
 		m.errMsg = ""
 		m.infoMsg = ""
 		m.state = stateSettings
@@ -538,6 +567,24 @@ func (m model) handleNormalKey(msg tea.KeyMsg) (tea.Model, tea.Cmd) {
 		m.infoMsg = ""
 		m.state = stateSettings
 		m.settingsCursor = 0
+		return m, nil
+
+	case "g", "G":
+		m.errMsg = ""
+		m.infoMsg = ""
+		if !m.isRepo {
+			m.errMsg = m.tr.Tr("msg_cannot_commit")
+			return m, nil
+		}
+		rc := LoadRepoConfig()
+		m.repoConfig = rc
+		m.repoConfigProviders = m.cfg.Providers
+		m.repoConfigKeys = make([]string, 0, len(m.cfg.Providers))
+		for _, p := range m.cfg.Providers {
+			m.repoConfigKeys = append(m.repoConfigKeys, p.ID)
+		}
+		m.repoConfigCursor = 0
+		m.state = stateRepoConfig
 		return m, nil
 
 	case "y", "Y":
@@ -706,11 +753,15 @@ func (m model) handleMouseEvent(msg tea.MouseMsg) model {
 			if m.settingsCursor > 0 {
 				m.settingsCursor--
 			}
+		case stateRepoConfig:
+			if m.repoConfigCursor > 0 {
+				m.repoConfigCursor--
+			}
 		}
 	case tea.MouseButtonWheelDown:
 		switch m.state {
 		case stateNormal:
-			max := len(m.cfg.Profiles) + 4
+			max := len(m.cfg.Profiles) + 5
 			if m.cursor < max-1 {
 				m.cursor++
 			}
@@ -753,6 +804,10 @@ func (m model) handleMouseEvent(msg tea.MouseMsg) model {
 		case stateSettings:
 			if m.settingsCursor < len(m.settingsItems())-1 {
 				m.settingsCursor++
+			}
+		case stateRepoConfig:
+			if m.repoConfigCursor < len(m.repoConfigKeys)-1 {
+				m.repoConfigCursor++
 			}
 		}
 	}
@@ -846,7 +901,7 @@ func (m model) confirmDeleteProfile(idx int) (tea.Model, tea.Cmd) {
 func (m model) startAccountForm(idx int) (tea.Model, tea.Cmd) {
 	m.accountEditIdx = idx
 	m.delMode = false
-	inputs := make([]textinput.Model, 7)
+	inputs := make([]textinput.Model, 6)
 	placeholders := []string{
 		m.tr.Tr("account_id_ph"),
 		m.tr.Tr("account_name_ph"),
@@ -854,7 +909,6 @@ func (m model) startAccountForm(idx int) (tea.Model, tea.Cmd) {
 		m.tr.Tr("account_gitemail_ph"),
 		m.tr.Tr("account_provider_ph"),
 		m.tr.Tr("account_ssh_identity_ph"),
-		m.tr.Tr("account_remote_paths_ph"),
 	}
 	for i := range inputs {
 		ti := textinput.New()
@@ -878,11 +932,6 @@ func (m model) startAccountForm(idx int) (tea.Model, tea.Cmd) {
 			}
 		}
 		inputs[5].SetValue(p.SSHIdentityFile)
-		var parts []string
-		for k, v := range p.RemotePaths {
-			parts = append(parts, k+"="+v)
-		}
-		inputs[6].SetValue(strings.Join(parts, ", "))
 	}
 
 	m.accountFocused = 0
@@ -926,7 +975,7 @@ func (m model) handleAccountFormKey(msg tea.KeyMsg) (tea.Model, tea.Cmd) {
 		return m, nil
 
 	case "enter":
-		values := make([]string, 7)
+		values := make([]string, 6)
 		for i, input := range m.accountInputs {
 			values[i] = strings.TrimSpace(input.Value())
 		}
@@ -950,24 +999,6 @@ func (m model) handleAccountFormKey(msg tea.KeyMsg) (tea.Model, tea.Cmd) {
 			}
 		}
 
-		remotePaths := make(map[string]string)
-		if values[6] != "" {
-			for _, pair := range strings.Split(values[6], ",") {
-				pair = strings.TrimSpace(pair)
-				if pair == "" {
-					continue
-				}
-				kv := strings.SplitN(pair, "=", 2)
-				if len(kv) == 2 {
-					k := strings.TrimSpace(kv[0])
-					v := strings.TrimSpace(kv[1])
-					if k != "" && v != "" {
-						remotePaths[k] = v
-					}
-				}
-			}
-		}
-
 		profile := Profile{
 			ID:              values[0],
 			Name:            values[1],
@@ -975,7 +1006,6 @@ func (m model) handleAccountFormKey(msg tea.KeyMsg) (tea.Model, tea.Cmd) {
 			GitEmail:        values[3],
 			ProviderID:      providerID,
 			SSHIdentityFile: values[5],
-			RemotePaths:     remotePaths,
 		}
 
 		if m.accountEditIdx >= 0 && m.accountEditIdx < len(m.cfg.Profiles) {
@@ -1415,6 +1445,128 @@ func (m model) buildSSHKeyPickerBar() string {
 	return b.String()
 }
 
+func (m model) buildRepoConfigBar() string {
+	var b strings.Builder
+	b.WriteString(fmt.Sprintf("  %s%s", keyStyle.Render("[↑↓]"), m.tr.Tr("action_nav")))
+	b.WriteString(fmt.Sprintf("  %s%s", keyStyle.Render("[Enter]"), m.tr.Tr("action_edit_btn")))
+	b.WriteString(fmt.Sprintf("  %s%s", keyStyle.Render("[Esc]"), m.tr.Tr("action_back")))
+	return b.String()
+}
+
+func (m model) buildRepoConfigEditBar() string {
+	var b strings.Builder
+	b.WriteString(fmt.Sprintf("  %s%s", keyStyle.Render("[Enter]"), m.tr.Tr("action_save")))
+	b.WriteString(fmt.Sprintf("  %s%s", keyStyle.Render("[Esc]"), m.tr.Tr("action_cancel")))
+	return b.String()
+}
+
+func (m model) handleRepoConfigKey(msg tea.KeyMsg) (tea.Model, tea.Cmd) {
+	switch msg.String() {
+	case "up", "k":
+		if m.repoConfigCursor > 0 {
+			m.repoConfigCursor--
+		}
+		return m, nil
+	case "down", "j":
+		if m.repoConfigCursor < len(m.repoConfigKeys)-1 {
+			m.repoConfigCursor++
+		}
+		return m, nil
+	case "enter":
+		if len(m.repoConfigKeys) > 0 {
+			key := m.repoConfigKeys[m.repoConfigCursor]
+			ti := textinput.New()
+			ti.Placeholder = m.tr.Tr("repo_config_path_ph")
+			ti.SetValue(m.repoConfig.Paths[key])
+			ti.CharLimit = 200
+			ti.Focus()
+			m.repoConfigInput = ti
+			m.state = stateRepoConfigEdit
+		}
+		return m, nil
+	case "esc":
+		m.state = stateNormal
+		m.infoMsg = ""
+		m.errMsg = ""
+		return m, nil
+	}
+	return m, nil
+}
+
+func (m model) handleRepoConfigEditKey(msg tea.KeyMsg) (tea.Model, tea.Cmd) {
+	switch msg.String() {
+	case "enter":
+		key := m.repoConfigKeys[m.repoConfigCursor]
+		val := strings.TrimSpace(m.repoConfigInput.Value())
+		if val == "" {
+			delete(m.repoConfig.Paths, key)
+		} else {
+			m.repoConfig.Paths[key] = val
+		}
+		if err := SaveRepoConfig(m.repoConfig); err != nil {
+			m.errMsg = fmt.Sprintf(m.tr.Tr("repo_config_save_fail"), err)
+		} else {
+			m.infoMsg = m.tr.Tr("repo_config_saved")
+		}
+		m.state = stateRepoConfig
+		return m, nil
+	case "esc":
+		m.state = stateRepoConfig
+		return m, nil
+	case "tab", "down":
+		var cmd tea.Cmd
+		m.repoConfigInput, cmd = m.repoConfigInput.Update(msg)
+		return m, cmd
+	case "shift+tab", "up":
+		var cmd tea.Cmd
+		m.repoConfigInput, cmd = m.repoConfigInput.Update(msg)
+		return m, cmd
+	default:
+		var cmd tea.Cmd
+		m.repoConfigInput, cmd = m.repoConfigInput.Update(msg)
+		return m, cmd
+	}
+}
+
+func (m model) renderRepoConfig(s *strings.Builder) {
+	var buf strings.Builder
+	buf.WriteString(labelStyle.Render(m.tr.Tr("label_repo_config")) + "\n\n")
+
+	if len(m.repoConfigKeys) == 0 {
+		buf.WriteString("  " + dimStyle.Render(m.tr.Tr("repo_config_empty")) + "\n")
+	} else {
+		for i, key := range m.repoConfigKeys {
+			cursor := "  "
+			if i == m.repoConfigCursor {
+				cursor = cursorStyle.Render("▸ ")
+			}
+			var provName string
+			for _, p := range m.cfg.Providers {
+				if p.ID == key {
+					provName = p.Name + " (" + p.Host + ")"
+					break
+				}
+			}
+			if provName == "" {
+				provName = key
+			}
+
+			if m.state == stateRepoConfigEdit && i == m.repoConfigCursor {
+				buf.WriteString(fmt.Sprintf("  %s%s\n", cursor, labelStyle.Render(provName)))
+				buf.WriteString(fmt.Sprintf("      %s %s\n", dimStyle.Render(m.tr.Tr("repo_config_path")+":"), m.repoConfigInput.View()))
+			} else {
+				path := m.repoConfig.Paths[key]
+				if path == "" {
+					path = dimStyle.Render(m.tr.Tr("repo_config_not_set"))
+				}
+				buf.WriteString(fmt.Sprintf("  %s%s %s\n", cursor, labelStyle.Render(provName), valueStyle.Render(path)))
+			}
+		}
+	}
+
+	s.WriteString(m.centerBlock(buf.String()) + "\n")
+}
+
 var (
 	cyan   = lipgloss.Color("#00FFFF")
 	yellow = lipgloss.Color("#FFD700")
@@ -1541,6 +1693,8 @@ func (m model) View() string {
 		m.renderSSHKeyPicker(&content)
 	case stateSettings:
 		m.renderSettings(&content)
+	case stateRepoConfig, stateRepoConfigEdit:
+		m.renderRepoConfig(&content)
 	default:
 		m.renderNormalContent(&content)
 	}
@@ -1775,8 +1929,8 @@ func (m model) renderAccountForm(s *strings.Builder) {
 	var buf strings.Builder
 	buf.WriteString(labelStyle.Render(" "+title) + "\n\n")
 
-	labels := []string{"ID:", "Name:", "Git Name:", "Git Email:", "Provider:", "SSH Key:", "Remote Paths:"}
-	descs := []string{"account_id_desc", "account_name_desc", "account_gitname_desc", "account_gitemail_desc", "account_provider_desc", "account_ssh_identity_desc", "account_remote_paths_desc"}
+	labels := []string{"ID:", "Name:", "Git Name:", "Git Email:", "Provider:", "SSH Key:"}
+	descs := []string{"account_id_desc", "account_name_desc", "account_gitname_desc", "account_gitemail_desc", "account_provider_desc", "account_ssh_identity_desc"}
 	for i, input := range m.accountInputs {
 		lbl := labels[i]
 		if i == m.accountFocused {
@@ -1900,7 +2054,11 @@ func (m model) renderBottomBar(s *strings.Builder) {
 		hint = m.buildSettingsBar()
 	case stateSSHKeyPicker:
 		hint = m.buildSSHKeyPickerBar()
-		default:
+	case stateRepoConfig:
+		hint = m.buildRepoConfigBar()
+	case stateRepoConfigEdit:
+		hint = m.buildRepoConfigEditBar()
+	default:
 		hint = m.buildActionBar()
 	}
 	s.WriteString(statusBarStyle.Width(m.width).Render(hint))
@@ -1995,9 +2153,9 @@ func (m model) actionsView() string {
 		b.WriteString(fmt.Sprintf("  %s%s %s\n", cursor, keyStyle.Render(num), label))
 	}
 	np := len(m.cfg.Profiles)
-	actionKeys := []string{"C", "A", "P", "S"}
-	actionTrs := []string{"action_commit", "action_accounts", "action_provider_mgmt", "action_settings"}
-	for i := 0; i < 4; i++ {
+	actionKeys := []string{"C", "G", "A", "P", "S"}
+	actionTrs := []string{"action_commit", "action_repo_config", "action_accounts", "action_provider_mgmt", "action_settings"}
+	for i := 0; i < 5; i++ {
 		cursor := "  "
 		if np+i == m.cursor {
 			cursor = cursorStyle.Render("▸ ")

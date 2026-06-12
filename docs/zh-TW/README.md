@@ -14,6 +14,7 @@ Git 多身份與遠端管理器 — 一鍵切換身份、託管提供者和 SSH 
 - **託管提供者** — 內建 GitHub / Gitee / GitLab / Bitbucket，自由新增
 - **SSH 金鑰自動注入** — 切換身份時自動配置 `core.sshCommand`，無需手動配 `~/.ssh/config`
 - **SSH 金鑰掃描** — `[Ctrl+O]` 掃描 `~/.ssh/` 目錄，一鍵填入金鑰路徑
+- **儲存庫配置** — 每個儲存庫獨立配置遠端路徑，TUI 按 `[G]` 編輯
 - **規範化提交** — 互動式 Conventional Commit（feat/fix/docs/refactor），自動 add/commit/push
 - **發布標籤** — 提交後在 TUI 中建立並推送發布標籤，或透過 CLI 操作
 - **雙介面** — TUI 互動介面 + CLI 子命令

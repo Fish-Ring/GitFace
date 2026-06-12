@@ -97,6 +97,35 @@
 
 ---
 
+## 每個儲存庫的配置
+
+每個儲存庫可以在 `.git/gitf.json` 中儲存按提供者劃分的遠端路徑映射。該檔案在首次切換身分時自動建立，git 會忽略它（位於 `.git/` 內）。
+
+### 結構
+
+```json
+{
+  "paths": {
+    "github": "Fish-Ring/GitFace",
+    "gitee": "Ableand/git-face"
+  }
+}
+```
+
+### 欄位
+
+| 欄位 | 說明 |
+|---|---|
+| `paths` | 提供者 ID 到該提供者上儲存庫路徑的映射 |
+
+### 工作原理
+
+切換身分時，GitFace 會重寫遠端 URL。倉庫配置告訴它每個提供者使用什麼路徑。例如，你的 GitHub 倉庫在 `Fish-Ring/GitFace`，但 Gitee 鏡像在 `Ableand/git-face`，就可以在這裡配置兩個路徑。
+
+可以在 TUI 中按 `[G]` 編輯，或手動編輯 `.git/gitf.json`。
+
+---
+
 ## SSH 設定
 
 ### 自動設定（推薦）

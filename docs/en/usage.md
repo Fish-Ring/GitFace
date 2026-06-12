@@ -54,6 +54,7 @@ Run `gitf` (no arguments) to launch the TUI.
   [1] Personal (GitHub)
   [2] Company (GitLab)
   [C] Commit
+  [G] Repo Config
   [A] Accounts
   [P] Manage
   [S] Settings
@@ -70,6 +71,7 @@ Run `gitf` (no arguments) to launch the TUI.
 | `[A]` | Account management |
 | `[P]` | Provider management |
 | `[S]` | Settings (language toggle + edit config) |
+| `[G]` | Repo config (per-repo remote path) |
 | `[Y]` | Copy identity info to clipboard |
 | `[R]` | Refresh status |
 | `[Q]` | Quit |
@@ -87,7 +89,7 @@ Press `[A]` to manage profiles:
 | `[Esc]` | Back |
 | ↑ ↓ / scroll wheel | Navigate |
 
-### Account Form (7 fields)
+### Account Form (6 fields)
 
 | Field | Description |
 |---|---|
@@ -97,7 +99,6 @@ Press `[A]` to manage profiles:
 | Git Email | `git config user.email` |
 | Provider | Hosting provider — type name or `[Ctrl+P]` to pick |
 | SSH Key | Path to private key — type path or `[Ctrl+O]` to scan |
-| Remote Paths | Path overrides: `host:path=newpath` (comma-separated) |
 
 ### Provider Management
 
@@ -119,6 +120,18 @@ Press `[S]` to open settings:
 - **Language** — ← → / Tab to toggle, Enter confirms
 - **Edit Config** — Open config file in editor (auto-reloads on save)
 
+### Repo Config
+
+Press `[G]` to manage per-repo remote path mappings:
+
+| Key | Action |
+|---|---|
+| `[Enter]` | Edit selected provider's repo path |
+| `[Esc]` | Back |
+| ↑ ↓ / scroll wheel | Navigate |
+
+Each provider shows its configured repo path (e.g. `Fish-Ring/GitFace`). The path is used to rewrite remote URLs when switching identities. Config is stored in `.git/gitf.json` inside the repository.
+
 ### SSH Key Scanning
 
 1. Focus the SSH Key field in account form
@@ -135,7 +148,7 @@ Press `[S]` to open settings:
 
 ### Outside Git Repository
 
-Only provider management, account management, settings, and quit are available.
+Only provider management, account management, settings, repo config, and quit are available.
 
 ---
 

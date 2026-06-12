@@ -66,6 +66,34 @@ func rewriteRemoteHost(currentURL, host string) string {
 	return ""
 }
 
+func detectProviderFromURL(currentURL string, providers []Provider) *Provider {
+	var host string
+	if m := sshPattern.FindStringSubmatch(currentURL); len(m) == 3 {
+		host = m[1]
+	} else if m := httpsPattern.FindStringSubmatch(currentURL); len(m) == 4 {
+		host = m[1]
+	}
+	if host == "" {
+		return nil
+	}
+	for i := range providers {
+		if providers[i].Host == host {
+			return &providers[i]
+		}
+	}
+	return nil
+}
+
+func extractPathFromURL(currentURL string) string {
+	var repoPath string
+	if m := sshPattern.FindStringSubmatch(currentURL); len(m) == 3 {
+		repoPath = m[2]
+	} else if m := httpsPattern.FindStringSubmatch(currentURL); len(m) == 4 {
+		repoPath = m[2] + "/" + m[3]
+	}
+	return strings.TrimSuffix(repoPath, ".git")
+}
+
 func SwitchProfile(p *Profile, providers []Provider, tr *Translator) (string, error) {
 	var logs []string
 
@@ -88,11 +116,23 @@ func SwitchProfile(p *Profile, providers []Provider, tr *Translator) (string, er
 			}
 		}
 		if provider != nil {
+			repoCfg := LoadRepoConfig()
 			remotesOut, _ := runGit("remote")
 			remotes := strings.Fields(remotesOut)
 			if len(remotes) == 0 {
 				logs = append(logs, tr.Tr("sp_no_url", provider.Name))
 			} else {
+				for _, remote := range remotes {
+					currentURL, _ := runGit("config", "--get", "remote."+remote+".url")
+					if currentURL == "" {
+						continue
+					}
+					if srcProvider := detectProviderFromURL(currentURL, providers); srcProvider != nil {
+						if srcPath := extractPathFromURL(currentURL); srcPath != "" {
+							repoCfg.Paths[srcProvider.ID] = srcPath
+						}
+					}
+				}
 				changed := false
 				for _, remote := range remotes {
 					currentURL, _ := runGit("config", "--get", "remote."+remote+".url")
@@ -103,18 +143,11 @@ func SwitchProfile(p *Profile, providers []Provider, tr *Translator) (string, er
 					if newURL == "" {
 						continue
 					}
-					// Apply RemotePaths override
-					if p.RemotePaths != nil {
-						if m := sshPattern.FindStringSubmatch(currentURL); len(m) == 3 {
-							key := m[1] + ":" + strings.TrimSuffix(m[2], ".git")
-							if mappedPath, ok := p.RemotePaths[key]; ok {
-								newURL = fmt.Sprintf("git@%s:%s", provider.Host, mappedPath)
-							}
-						} else if m := httpsPattern.FindStringSubmatch(currentURL); len(m) == 4 {
-							key := m[1] + ":" + m[2] + "/" + strings.TrimSuffix(m[3], ".git")
-							if mappedPath, ok := p.RemotePaths[key]; ok {
-								newURL = fmt.Sprintf("git@%s:%s", provider.Host, mappedPath)
-							}
+					hostChanged := newURL != currentURL
+					if hostChanged {
+						if repoPath, ok := repoCfg.Paths[provider.ID]; ok {
+							path := strings.TrimSuffix(repoPath, ".git")
+							newURL = fmt.Sprintf("git@%s:%s.git", provider.Host, path)
 						}
 					}
 					if newURL == currentURL {
@@ -126,6 +159,7 @@ func SwitchProfile(p *Profile, providers []Provider, tr *Translator) (string, er
 					logs = append(logs, fmt.Sprintf("Remote (%s): %s -> %s (%s)", remote, currentURL, newURL, provider.Name))
 					changed = true
 				}
+				SaveRepoConfig(repoCfg)
 				if !changed {
 					logs = append(logs, tr.Tr("sp_remote_same"))
 				}

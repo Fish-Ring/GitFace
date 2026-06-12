@@ -23,13 +23,16 @@ type Profile struct {
 	GitEmail        string            `json:"git_email"`
 	ProviderID      string            `json:"provider_id,omitempty"`
 	SSHIdentityFile string            `json:"ssh_identity_file"`
-	RemotePaths     map[string]string `json:"remote_paths,omitempty"`
 }
 
 type Config struct {
 	Lang      string     `json:"lang"`
 	Profiles  []Profile  `json:"profiles"`
 	Providers []Provider `json:"providers"`
+}
+
+type RepoConfig struct {
+	Paths map[string]string `json:"paths"` // provider_id -> repo path
 }
 
 func DefaultConfig() *Config {
@@ -94,6 +97,71 @@ func SaveConfig(cfg *Config, path string) error {
 		return fmt.Errorf("serialize config failed: %w", err)
 	}
 	return os.WriteFile(path, data, 0644)
+}
+
+func RepoConfigPath() string {
+	out, err := runGit("rev-parse", "--git-dir")
+	if err != nil {
+		return ""
+	}
+	return filepath.Join(strings.TrimSpace(out), "gitf.json")
+}
+
+func LoadRepoConfig() *RepoConfig {
+	path := RepoConfigPath()
+	if path == "" {
+		return &RepoConfig{Paths: map[string]string{}}
+	}
+	data, err := os.ReadFile(path)
+	if err != nil {
+		return &RepoConfig{Paths: map[string]string{}}
+	}
+	var rc RepoConfig
+	if err := json.Unmarshal(data, &rc); err != nil {
+		return &RepoConfig{Paths: map[string]string{}}
+	}
+	if rc.Paths == nil {
+		rc.Paths = map[string]string{}
+	}
+	return &rc
+}
+
+func SaveRepoConfig(rc *RepoConfig) error {
+	path := RepoConfigPath()
+	if path == "" {
+		return fmt.Errorf("not inside a git repository")
+	}
+	data, err := json.MarshalIndent(rc, "", "  ")
+	if err != nil {
+		return fmt.Errorf("serialize repo config failed: %w", err)
+	}
+	return os.WriteFile(path, data, 0644)
+}
+
+func EnsureRepoConfig(providerID, providerHost string) *RepoConfig {
+	rc := LoadRepoConfig()
+	path := RepoConfigPath()
+	if path == "" {
+		return rc
+	}
+	if _, err := os.Stat(path); err == nil {
+		return rc
+	}
+	remoteURL := GetRemoteURL()
+	if remoteURL != "" && providerID != "" {
+		var repoPath string
+		if m := sshPattern.FindStringSubmatch(remoteURL); len(m) == 3 {
+			repoPath = m[2]
+		} else if m := httpsPattern.FindStringSubmatch(remoteURL); len(m) == 4 {
+			repoPath = m[2] + "/" + m[3]
+		}
+		if repoPath != "" {
+			repoPath = strings.TrimSuffix(repoPath, ".git")
+			rc.Paths[providerID] = repoPath
+			SaveRepoConfig(rc)
+		}
+	}
+	return rc
 }
 
 func BuildEditCmd(path string) *exec.Cmd {

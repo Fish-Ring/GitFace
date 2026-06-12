@@ -14,6 +14,7 @@ Git Multi-Identity & Remote Manager — Switch identity, git provider, and SSH k
 - **Hosting Providers** — Built-in GitHub / Gitee / GitLab / Bitbucket, freely add your own
 - **SSH Key Auto-Injection** — Automatically sets `core.sshCommand` on switch, no `~/.ssh/config` required
 - **SSH Key Scanning** — `[Ctrl+O]` scan `~/.ssh/` directory and fill key path instantly
+- **Repo Config** — Per-repo remote path mappings, edit via `[G]` in TUI
 - **Conventional Commit** — Interactive commit type selection with auto add/commit/push
 - **Release Tag** — Create and push release tags from TUI after commit or via CLI
 - **Dual Interface** — TUI + CLI subcommands

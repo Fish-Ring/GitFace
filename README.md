@@ -15,6 +15,7 @@ Git 多身份与远程管理器 — 一键切换身份、托管提供商和 SSH 
 - **SSH 密钥自动注入** — 切身份时自动配置 `core.sshCommand`，无需手动配 `~/.ssh/config`
 - **SSH 密钥扫描** — `[Ctrl+O]` 扫描 `~/.ssh/` 目录，一键填入密钥路径
 - **远程路径映射** — 为不同托管平台自定义仓库路径（如 GitHub → Gitee 仓库映射）
+- **仓库配置** — 每个仓库独立配置远程路径，TUI 按 `[G]` 编辑
 - **规范化提交** — 交互式 Conventional Commit（feat/fix/docs/refactor），自动 add/commit/push
 - **发布标签** — 提交后在 TUI 中创建并推送发布标签，或通过 CLI 操作
 - **双界面** — TUI 交互界面 + CLI 子命令

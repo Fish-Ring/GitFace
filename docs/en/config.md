@@ -105,6 +105,35 @@
 
 ---
 
+## Per-Repo Configuration
+
+Each repository can have its own `.git/gitf.json` file that stores per-provider remote path mappings. This file is auto-created on first identity switch and is ignored by git (inside `.git/`).
+
+### Structure
+
+```json
+{
+  "paths": {
+    "github": "Fish-Ring/GitFace",
+    "gitee": "Ableand/git-face"
+  }
+}
+```
+
+### Fields
+
+| Field | Description |
+|---|---|
+| `paths` | Map of provider ID to repo path on that provider |
+
+### How It Works
+
+When you switch identities, GitFace rewrites the remote URL. The repo config tells it what path to use for each provider. For example, if your GitHub repo is at `Fish-Ring/GitFace` but your Gitee mirror is at `Ableand/git-face`, you configure both paths here.
+
+You can edit this from the TUI by pressing `[G]` on the main screen, or manually edit `.git/gitf.json`.
+
+---
+
 ## SSH Setup
 
 ### Automatic (Recommended)

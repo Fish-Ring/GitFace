@@ -90,7 +90,7 @@ func (t *Translator) Tr(key string, args ...interface{}) string {
 var texts = map[Lang]map[string]string{
 	EN: {
 		// App
-		"app_title": "GitFace v1.0",
+		"app_title": "GitFace v1.0.1",
 
 		// Status section
 		"label_status":  "[Status]",
@@ -166,6 +166,7 @@ var texts = map[Lang]map[string]string{
 		"action_commit":        "Commit",
 		"action_accounts":      "Accounts",
 		"action_settings":      "Settings",
+		"action_repo_config":   "Repo Config",
 		"action_copy":          "Copy",
 		"action_refresh":       "Refresh",
 		"action_quit":          "Quit",
@@ -176,6 +177,8 @@ var texts = map[Lang]map[string]string{
 		"action_back":          "Back",
 		"action_confirm_del":   "Confirm Del",
 		"action_nav":           "Navigate",
+		"action_save":          "Save",
+		"action_cancel":        "Cancel",
 
 		// Settings
 		"label_settings":       "Settings",
@@ -188,6 +191,15 @@ var texts = map[Lang]map[string]string{
 		"settings_edit_config": "Edit Config",
 		"settings_saved":       "Settings saved",
 		"settings_save_fail":   "Failed to save settings: %v",
+
+		// Repo config
+		"label_repo_config":      "Repository Config (.git/gitf.json)",
+		"repo_config_path":       "Path",
+		"repo_config_path_ph":    "e.g. user/repo",
+		"repo_config_empty":      "No paths configured. Switch profiles first to auto-create.",
+		"repo_config_not_set":    "(not set)",
+		"repo_config_saved":      "Repo config saved",
+		"repo_config_save_fail":  "Failed to save repo config: %v",
 
 		// Header
 		"label_no_repo": "Not a repo",
@@ -212,8 +224,6 @@ var texts = map[Lang]map[string]string{
 		"account_gitemail_desc": "git user.email value (e.g. zhang@company.com)",
 		"account_ssh_identity_ph": "SSH Identity File",
 		"account_ssh_identity_desc": "Path to SSH private key (e.g. ~/.ssh/id_ed25519_work)",
-		"account_remote_paths_ph": "Remote Paths",
-		"account_remote_paths_desc": "Remote path overrides: host:path=newpath (comma-separated)",
 		"ssh_scan_hint":  "[Ctrl+O] Scan SSH keys",
 		"ssh_scan_title": "Select SSH Key",
 		"ssh_scan_none":  "No SSH keys found in ~/.ssh/. Use ssh-keygen to generate one.",
@@ -271,12 +281,12 @@ var texts = map[Lang]map[string]string{
 		"cli_clean":           "Status:  Clean",
 		"cli_edit_opening":    "Opening config in editor...",
 		"cli_no_repo":         "Not in a Git repository",
-		"cli_version":         "GitFace v1.0",
+		"cli_version":         "GitFace v1.0.1",
 	},
 
 	ZH: {
 		// App
-		"app_title": "GitFace v1.0",
+		"app_title": "GitFace v1.0.1",
 
 		// Status section
 		"label_status":  "【当前状态】",
@@ -355,6 +365,7 @@ var texts = map[Lang]map[string]string{
 		"action_commit":        "提交",
 		"action_accounts":      "账户管理",
 		"action_settings":      "设置",
+		"action_repo_config":   "仓库配置",
 		"action_copy":          "复制",
 		"action_refresh":       "刷新",
 		"action_quit":          "退出",
@@ -365,6 +376,8 @@ var texts = map[Lang]map[string]string{
 		"action_back":          "返回",
 		"action_confirm_del":   "确认删除",
 		"action_nav":           "导航",
+		"action_save":          "保存",
+		"action_cancel":        "取消",
 
 		// Settings
 		"label_settings":       "设置",
@@ -377,6 +390,15 @@ var texts = map[Lang]map[string]string{
 		"settings_edit_config": "编辑配置",
 		"settings_saved":       "设置已保存",
 		"settings_save_fail":   "保存设置失败: %v",
+
+		// Repo config
+		"label_repo_config":      "仓库配置 (.git/gitf.json)",
+		"repo_config_path":       "路径",
+		"repo_config_path_ph":    "如 user/repo",
+		"repo_config_empty":      "暂无路径配置。请先切换身份以自动创建。",
+		"repo_config_not_set":    "（未设置）",
+		"repo_config_saved":      "仓库配置已保存",
+		"repo_config_save_fail":  "保存仓库配置失败: %v",
 
 		// Header
 		"label_no_repo": "非仓库目录",
@@ -401,8 +423,6 @@ var texts = map[Lang]map[string]string{
 		"account_gitemail_desc": "git user.email 的值（例: zhang@company.com）",
 		"account_ssh_identity_ph": "SSH 密钥文件",
 		"account_ssh_identity_desc": "SSH 私钥路径（例: ~/.ssh/id_ed25519_work）",
-		"account_remote_paths_ph": "远程路径映射",
-		"account_remote_paths_desc": "远程路径覆盖: host:path=newpath（逗号分隔）",
 		"ssh_scan_hint":  "[Ctrl+O] 扫描 SSH 密钥",
 		"ssh_scan_title": "选择 SSH 密钥",
 		"ssh_scan_none":  "~/.ssh/ 中未找到 SSH 密钥。可用 ssh-keygen 命令生成。",
@@ -459,11 +479,11 @@ var texts = map[Lang]map[string]string{
 		"cli_clean":           "状态:  干净",
 		"cli_edit_opening":    "正在打开编辑器...",
 		"cli_no_repo":         "不在 Git 仓库中",
-		"cli_version":         "GitFace v1.0",
+		"cli_version":         "GitFace v1.0.1",
 	},
 
 	JA: {
-		"app_title":           "GitFace v1.0",
+		"app_title":           "GitFace v1.0.1",
 		"label_status":        "【ステータス】",
 		"label_branch":        "ブランチ:",
 		"label_route":         "リモート:",
@@ -528,6 +548,7 @@ var texts = map[Lang]map[string]string{
 		"action_commit":       "コミット",
 		"action_accounts":     "アカウント",
 		"action_settings":     "設定",
+		"action_repo_config":  "リポジトリ設定",
 		"action_copy":         "コピー",
 		"action_refresh":      "更新",
 		"action_quit":         "終了",
@@ -538,6 +559,8 @@ var texts = map[Lang]map[string]string{
 		"action_back":         "戻る",
 		"action_confirm_del":  "削除確認",
 		"action_nav":          "ナビゲート",
+		"action_save":         "保存",
+		"action_cancel":       "キャンセル",
 		"label_settings":      "設定",
 		"settings_language":   "言語",
 		"settings_lang_en":    "English",
@@ -548,6 +571,16 @@ var texts = map[Lang]map[string]string{
 		"settings_edit_config": "設定を編集",
 		"settings_saved":      "設定を保存しました",
 		"settings_save_fail":  "設定の保存に失敗: %v",
+
+		// Repo config
+		"label_repo_config":      "リポジトリ設定 (.git/gitf.json)",
+		"repo_config_path":       "パス",
+		"repo_config_path_ph":    "例: user/repo",
+		"repo_config_empty":      "パスが未設定です。先にプロファイルを切り替えて自動作成してください。",
+		"repo_config_not_set":    "（未設定）",
+		"repo_config_saved":      "リポジトリ設定を保存しました",
+		"repo_config_save_fail":  "リポジトリ設定の保存に失敗: %v",
+
 		"label_no_repo":       "リポジトリではない",
 		"label_accounts":      "アカウント管理",
 		"label_no_accounts":   "プロファイルが未設定です",
@@ -568,8 +601,6 @@ var texts = map[Lang]map[string]string{
 		"account_gitemail_desc": "git user.email の値（例: yamada@company.com）",
 		"account_ssh_identity_ph": "SSH 身分ファイル",
 		"account_ssh_identity_desc": "SSH秘密鍵のパス（例: ~/.ssh/id_ed25519_work）",
-		"account_remote_paths_ph": "リモートパス",
-		"account_remote_paths_desc": "リモートパス上書き: host:path=newpath（カンマ区切り）",
 		"ssh_scan_hint":       "[Ctrl+O] SSH鍵をスキャン",
 		"ssh_scan_title":      "SSH鍵を選択",
 		"ssh_scan_none":       "~/.ssh/ にSSH鍵が見つかりません。ssh-keygen で生成してください。",
@@ -614,11 +645,11 @@ var texts = map[Lang]map[string]string{
 		"cli_clean":           "状態:  クリーン",
 		"cli_edit_opening":    "エディタを開いています...",
 		"cli_no_repo":         "Gitリポジトリではありません",
-		"cli_version":         "GitFace v1.0",
+		"cli_version":         "GitFace v1.0.1",
 	},
 
 	KO: {
-		"app_title":           "GitFace v1.0",
+		"app_title":           "GitFace v1.0.1",
 		"label_status":        "【상태】",
 		"label_branch":        "브랜치:",
 		"label_route":         "원격:",
@@ -683,6 +714,7 @@ var texts = map[Lang]map[string]string{
 		"action_commit":       "커밋",
 		"action_accounts":     "계정",
 		"action_settings":     "설정",
+		"action_repo_config":  "저장소 설정",
 		"action_copy":         "복사",
 		"action_refresh":      "새로고침",
 		"action_quit":         "종료",
@@ -693,6 +725,8 @@ var texts = map[Lang]map[string]string{
 		"action_back":         "뒤로",
 		"action_confirm_del":  "삭제 확인",
 		"action_nav":          "탐색",
+		"action_save":         "저장",
+		"action_cancel":       "취소",
 		"label_settings":      "설정",
 		"settings_language":   "언어",
 		"settings_lang_en":    "English",
@@ -703,6 +737,16 @@ var texts = map[Lang]map[string]string{
 		"settings_edit_config": "설정 편집",
 		"settings_saved":      "설정을 저장했습니다",
 		"settings_save_fail":  "설정 저장 실패: %v",
+
+		// Repo config
+		"label_repo_config":      "저장소 설정 (.git/gitf.json)",
+		"repo_config_path":       "경로",
+		"repo_config_path_ph":    "예: user/repo",
+		"repo_config_empty":      "경로가 설정되지 않았습니다. 먼저 프로필을 전환하여 자동 생성하세요.",
+		"repo_config_not_set":    "（미설정）",
+		"repo_config_saved":      "저장소 설정을 저장했습니다",
+		"repo_config_save_fail":  "저장소 설정 저장 실패: %v",
+
 		"label_no_repo":       "저장소 아님",
 		"label_accounts":      "계정 관리",
 		"label_no_accounts":   "프로필이 설정되지 않았습니다",
@@ -723,8 +767,6 @@ var texts = map[Lang]map[string]string{
 		"account_gitemail_desc": "git user.email 값 (예: kim@company.com)",
 		"account_ssh_identity_ph": "SSH 신분 파일",
 		"account_ssh_identity_desc": "SSH 개인키 경로 (예: ~/.ssh/id_ed25519_work)",
-		"account_remote_paths_ph": "원격 경로",
-		"account_remote_paths_desc": "원격 경로 재정의: host:path=newpath (쉼표 구분)",
 		"ssh_scan_hint":       "[Ctrl+O] SSH 키 스캔",
 		"ssh_scan_title":      "SSH 키 선택",
 		"ssh_scan_none":       "~/.ssh/에 SSH 키가 없습니다. ssh-keygen으로 생성하세요.",
@@ -769,11 +811,11 @@ var texts = map[Lang]map[string]string{
 		"cli_clean":           "상태:  클린",
 		"cli_edit_opening":    "에디터를 열고 있습니다...",
 		"cli_no_repo":         "Git 저장소가 아닙니다",
-		"cli_version":         "GitFace v1.0",
+		"cli_version":         "GitFace v1.0.1",
 	},
 
 	ZH_TW: {
-		"app_title":           "GitFace v1.0",
+		"app_title":           "GitFace v1.0.1",
 		"label_status":        "【目前狀態】",
 		"label_branch":        "分支:",
 		"label_route":         "遠端:",
@@ -838,6 +880,7 @@ var texts = map[Lang]map[string]string{
 		"action_commit":       "提交",
 		"action_accounts":     "帳戶管理",
 		"action_settings":     "設定",
+		"action_repo_config":  "儲存庫設定",
 		"action_copy":         "複製",
 		"action_refresh":      "重新整理",
 		"action_quit":         "離開",
@@ -848,6 +891,8 @@ var texts = map[Lang]map[string]string{
 		"action_back":         "返回",
 		"action_confirm_del":  "確認刪除",
 		"action_nav":          "導覽",
+		"action_save":         "儲存",
+		"action_cancel":       "取消",
 		"label_settings":      "設定",
 		"settings_language":   "語言",
 		"settings_lang_en":    "English",
@@ -858,6 +903,16 @@ var texts = map[Lang]map[string]string{
 		"settings_edit_config": "編輯設定",
 		"settings_saved":      "設定已儲存",
 		"settings_save_fail":  "儲存設定失敗: %v",
+
+		// Repo config
+		"label_repo_config":      "儲存庫設定 (.git/gitf.json)",
+		"repo_config_path":       "路徑",
+		"repo_config_path_ph":    "如 user/repo",
+		"repo_config_empty":      "尚無路徑設定。請先切換身分以自動建立。",
+		"repo_config_not_set":    "（未設定）",
+		"repo_config_saved":      "儲存庫設定已儲存",
+		"repo_config_save_fail":  "儲存庫設定儲存失敗: %v",
+
 		"label_no_repo":       "非儲存庫目錄",
 		"label_accounts":      "帳戶管理",
 		"label_no_accounts":   "未設定任何身分",
@@ -878,8 +933,6 @@ var texts = map[Lang]map[string]string{
 		"account_gitemail_desc": "git user.email 的值（例: wang@company.com）",
 		"account_ssh_identity_ph": "SSH 身分檔案",
 		"account_ssh_identity_desc": "SSH 私鑰路徑（例: ~/.ssh/id_ed25519_work）",
-		"account_remote_paths_ph": "遠端路徑映射",
-		"account_remote_paths_desc": "遠端路徑覆蓋: host:path=newpath（逗號分隔）",
 		"ssh_scan_hint":       "[Ctrl+O] 掃描 SSH 金鑰",
 		"ssh_scan_title":      "選擇 SSH 金鑰",
 		"ssh_scan_none":       "~/.ssh/ 中未找到 SSH 金鑰。可用 ssh-keygen 命令產生。",
@@ -924,6 +977,6 @@ var texts = map[Lang]map[string]string{
 		"cli_clean":           "狀態:  乾淨",
 		"cli_edit_opening":    "正在開啟編輯器...",
 		"cli_no_repo":         "不在 Git 儲存庫中",
-		"cli_version":         "GitFace v1.0",
+		"cli_version":         "GitFace v1.0.1",
 	},
 }

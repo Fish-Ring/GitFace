@@ -105,6 +105,35 @@
 
 ---
 
+## 每个仓库的配置
+
+每个仓库可以在 `.git/gitf.json` 中存储按提供商划分的远程路径映射。该文件在首次切换身份时自动创建，git 会忽略它（位于 `.git/` 内）。
+
+### 结构
+
+```json
+{
+  "paths": {
+    "github": "Fish-Ring/GitFace",
+    "gitee": "Ableand/git-face"
+  }
+}
+```
+
+### 字段
+
+| 字段 | 说明 |
+|---|---|
+| `paths` | 提供商 ID 到该提供商上仓库路径的映射 |
+
+### 工作原理
+
+切换身份时，GitFace 会重写远程 URL。仓库配置告诉它每个提供商使用什么路径。例如，你的 GitHub 仓库在 `Fish-Ring/GitFace`，但 Gitee 镜像在 `Ableand/git-face`，就可以在这里配置两个路径。
+
+可以在 TUI 中按 `[G]` 编辑，或手动编辑 `.git/gitf.json`。
+
+---
+
 ## SSH 配置
 
 ### 自动配置（推荐）
