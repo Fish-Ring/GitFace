@@ -133,7 +133,7 @@ var texts = map[Lang]map[string]string{
 		// Prompts
 		"prompt_select_type":     "Select commit type:",
 		"prompt_enter_desc_ph":   "Enter commit description...",
-		"prompt_confirm_cancel":  "[Enter] Confirm  [Esc] Cancel",
+		"prompt_confirm_cancel":  "[Enter] Confirm  [Esc] Cancel  [Ctrl+J] Newline",
 		"prompt_cancel":          "[Esc] Cancel",
 		"prompt_any_key":         "Press any key to return",
 
@@ -329,7 +329,7 @@ var texts = map[Lang]map[string]string{
 		// Prompts
 		"prompt_select_type":     "选择提交类型:",
 		"prompt_enter_desc_ph":   "输入提交描述...",
-		"prompt_confirm_cancel":  "[Enter] 确认  [Esc] 取消",
+		"prompt_confirm_cancel":  "[Enter] 确认  [Esc] 取消  [Ctrl+J] 换行",
 		"prompt_cancel":          "[Esc] 取消",
 		"prompt_any_key":         "按任意键返回",
 
@@ -516,7 +516,7 @@ var texts = map[Lang]map[string]string{
 		"sp_ssh_fail":       "SSH コマンドの設定に失敗: %s",
 		"prompt_select_type":  "コミットタイプを選択:",
 		"prompt_enter_desc_ph": "コミット説明を入力...",
-		"prompt_confirm_cancel": "[Enter] 確認  [Esc] キャンセル",
+		"prompt_confirm_cancel": "[Enter] 確認  [Esc] キャンセル  [Ctrl+J] 改行",
 		"prompt_cancel":       "[Esc] キャンセル",
 		"prompt_any_key":      "任意キーで戻る",
 		"commit_result":       "コミット結果",
@@ -682,7 +682,7 @@ var texts = map[Lang]map[string]string{
 		"sp_ssh_fail":       "SSH 명령 설정 실패: %s",
 		"prompt_select_type":  "커밋 유형 선택:",
 		"prompt_enter_desc_ph": "커밋 설명을 입력하세요...",
-		"prompt_confirm_cancel": "[Enter] 확인  [Esc] 취소",
+		"prompt_confirm_cancel": "[Enter] 확인  [Esc] 취소  [Ctrl+J] 줄바꿈",
 		"prompt_cancel":       "[Esc] 취소",
 		"prompt_any_key":      "아무 키나 눌러 돌아가기",
 		"commit_result":       "커밋 결과",
@@ -848,7 +848,7 @@ var texts = map[Lang]map[string]string{
 		"sp_ssh_fail":       "設定 SSH 命令失敗: %s",
 		"prompt_select_type":  "選擇提交類型:",
 		"prompt_enter_desc_ph": "輸入提交描述...",
-		"prompt_confirm_cancel": "[Enter] 確認  [Esc] 取消",
+		"prompt_confirm_cancel": "[Enter] 確認  [Esc] 取消  [Ctrl+J] 換行",
 		"prompt_cancel":       "[Esc] 取消",
 		"prompt_any_key":      "按任意鍵返回",
 		"commit_result":       "提交結果",

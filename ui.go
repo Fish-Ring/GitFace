@@ -687,6 +687,18 @@ func (m model) handleCommitSelectKey(msg tea.KeyMsg) (tea.Model, tea.Cmd) {
 }
 
 func (m model) handleCommitInputKey(msg tea.KeyMsg) (tea.Model, tea.Cmd) {
+	// Paste detection: forward paste keys to textarea without triggering submit
+	if msg.Paste {
+		if msg.Type == tea.KeyEnter {
+			m.commitInput.InsertString("\n")
+		} else {
+			var cmd tea.Cmd
+			m.commitInput, cmd = m.commitInput.Update(msg)
+			return m, cmd
+		}
+		return m, nil
+	}
+
 	switch msg.String() {
 	case "esc":
 		m.state = stateNormal
