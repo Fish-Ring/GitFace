@@ -79,7 +79,7 @@ gitf tag v1.0.0
 | `[Esc]` | 뒤로 |
 | ↑ ↓ / 스크롤 | 탐색 |
 
-### 계정 양식 (6개 필드)
+### 계정 양식 (7개 필드)
 
 | 필드 | 설명 |
 |---|---|
@@ -89,6 +89,7 @@ gitf tag v1.0.0
 | Git Email | `git config user.email` |
 | Provider | 호스팅 프로바이더 — 입력 또는 `[Ctrl+P]`로 선택 |
 | SSH Key | 개인키 경로 — 입력 또는 `[Ctrl+O]`로 스캔 |
+| 원격 경로 | 경로 재정의: `host:path=newpath` (쉼표 구분) |
 
 ### 프로바이더 관리
 

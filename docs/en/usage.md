@@ -87,7 +87,7 @@ Press `[A]` to manage profiles:
 | `[Esc]` | Back |
 | ↑ ↓ / scroll wheel | Navigate |
 
-### Account Form (6 fields)
+### Account Form (7 fields)
 
 | Field | Description |
 |---|---|
@@ -97,6 +97,7 @@ Press `[A]` to manage profiles:
 | Git Email | `git config user.email` |
 | Provider | Hosting provider — type name or `[Ctrl+P]` to pick |
 | SSH Key | Path to private key — type path or `[Ctrl+O]` to scan |
+| Remote Paths | Path overrides: `host:path=newpath` (comma-separated) |
 
 ### Provider Management
 

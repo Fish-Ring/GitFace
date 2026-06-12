@@ -914,7 +914,7 @@ func (m model) handleAccountFormKey(msg tea.KeyMsg) (tea.Model, tea.Cmd) {
 		return m, nil
 
 	case "ctrl+o":
-		if m.accountFocused == 6 {
+		if m.accountFocused == 5 {
 			return m.startSSHKeyScan()
 		}
 		return m, nil
@@ -1790,7 +1790,7 @@ func (m model) renderAccountForm(s *strings.Builder) {
 	}
 
 	buf.WriteString("\n\n  " + dimStyle.Render(m.tr.Tr("prompt_tab_next")))
-	if m.accountFocused == 6 {
+	if m.accountFocused == 5 {
 		buf.WriteString("\n  " + dimStyle.Render(m.tr.Tr("ssh_scan_hint")))
 	}
 	if m.accountFocused == 4 {
