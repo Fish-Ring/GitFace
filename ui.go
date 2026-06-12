@@ -5,6 +5,7 @@ import (
 	"strings"
 
 	"github.com/atotto/clipboard"
+	"github.com/charmbracelet/bubbles/textarea"
 	"github.com/charmbracelet/bubbles/textinput"
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
@@ -105,7 +106,7 @@ type model struct {
 	infoMsg string
 
 	commitType  string
-	commitInput textinput.Model
+	commitInput textarea.Model
 	commitOutput string
 	commitErr   error
 	canTag      bool
@@ -157,10 +158,15 @@ var commitTypes = []struct {
 }
 
 func NewModel(cfg *Config, cfgPath string, tr *Translator) model {
-	ti := textinput.New()
+	ti := textarea.New()
 	ti.Placeholder = tr.Tr("prompt_enter_desc_ph")
+	ti.ShowLineNumbers = false
+	ti.SetHeight(3)
+	ti.SetWidth(80)
+	ti.CharLimit = 500
+	ti.Prompt = ""
 	ti.Focus()
-	ti.CharLimit = 100
+	ti.KeyMap.InsertNewline.SetKeys("ctrl+j", "ctrl+m")
 
 	tgi := textinput.New()
 	tgi.Placeholder = "v1.0.0"
@@ -181,7 +187,7 @@ func NewModel(cfg *Config, cfgPath string, tr *Translator) model {
 }
 
 func (m model) Init() tea.Cmd {
-	return m.refreshCmd()
+	return tea.Batch(m.commitInput.Focus(), m.refreshCmd())
 }
 
 func (m model) refreshCmd() tea.Cmd {
@@ -225,6 +231,11 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	case tea.WindowSizeMsg:
 		m.width = msg.Width
 		m.height = msg.Height
+		w := msg.Width - 12
+		if w < 40 {
+			w = 40
+		}
+		m.commitInput.SetWidth(w)
 		return m, nil
 
 	case tea.MouseMsg:
@@ -653,9 +664,8 @@ func (m model) handleCommitSelectKey(msg tea.KeyMsg) (tea.Model, tea.Cmd) {
 	case "enter":
 		m.commitType = commitTypes[m.commitCursor].key
 		m.state = stateCommitInput
-		m.commitInput.Focus()
 		m.commitInput.SetValue("")
-		return m, nil
+		return m, m.commitInput.Focus()
 
 	case "f":
 		m.commitType = "feat"
@@ -669,9 +679,8 @@ func (m model) handleCommitSelectKey(msg tea.KeyMsg) (tea.Model, tea.Cmd) {
 		return m, nil
 	}
 	m.state = stateCommitInput
-	m.commitInput.Focus()
 	m.commitInput.SetValue("")
-	return m, nil
+	return m, m.commitInput.Focus()
 }
 
 func (m model) handleCommitInputKey(msg tea.KeyMsg) (tea.Model, tea.Cmd) {
@@ -688,10 +697,11 @@ func (m model) handleCommitInputKey(msg tea.KeyMsg) (tea.Model, tea.Cmd) {
 			m.errMsg = m.tr.Tr("msg_desc_empty")
 			return m, nil
 		}
-		m.state = stateNormal
+		m.state = stateCommitOutput
 		m.commitInput.Blur()
 		m.infoMsg = ""
 		m.errMsg = ""
+		m.commitOutput = "..."
 		ct := m.commitType
 		tr := m.tr
 		return m, func() tea.Msg {

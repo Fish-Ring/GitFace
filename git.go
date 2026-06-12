@@ -1,6 +1,7 @@
 package main
 
 import (
+	"errors"
 	"fmt"
 	"os"
 	"os/exec"
@@ -98,12 +99,12 @@ func SwitchProfile(p *Profile, providers []Provider, tr *Translator) (string, er
 	var logs []string
 
 	if _, err := runGit("config", "--local", "user.name", p.GitName); err != nil {
-		return "", fmt.Errorf(tr.Tr("sp_name_fail", err))
+		return "", errors.New(tr.Tr("sp_name_fail", err))
 	}
 	logs = append(logs, fmt.Sprintf("user.name -> %s", p.GitName))
 
 	if _, err := runGit("config", "--local", "user.email", p.GitEmail); err != nil {
-		return "", fmt.Errorf(tr.Tr("sp_email_fail", err))
+		return "", errors.New(tr.Tr("sp_email_fail", err))
 	}
 	logs = append(logs, fmt.Sprintf("user.email -> %s", p.GitEmail))
 
@@ -154,7 +155,7 @@ func SwitchProfile(p *Profile, providers []Provider, tr *Translator) (string, er
 						continue
 					}
 					if _, err := runGit("remote", "set-url", remote, newURL); err != nil {
-						return "", fmt.Errorf(tr.Tr("sp_remote_fail", err))
+						return "", errors.New(tr.Tr("sp_remote_fail", err))
 					}
 					logs = append(logs, fmt.Sprintf("Remote (%s): %s -> %s (%s)", remote, currentURL, newURL, provider.Name))
 					changed = true
@@ -174,7 +175,7 @@ func SwitchProfile(p *Profile, providers []Provider, tr *Translator) (string, er
 	if p.SSHIdentityFile != "" {
 		sshPath := strings.ReplaceAll(p.SSHIdentityFile, "\\", "/")
 		if _, err := runGit("config", "core.sshCommand", fmt.Sprintf("ssh -i \"%s\"", sshPath)); err != nil {
-			return "", fmt.Errorf(tr.Tr("sp_ssh_fail", err))
+			return "", errors.New(tr.Tr("sp_ssh_fail", err))
 		}
 		logs = append(logs, fmt.Sprintf("SSH key -> %s", p.SSHIdentityFile))
 	} else {
@@ -211,14 +212,14 @@ func CreateTag(version string, tr *Translator) (string, error) {
 
 	writeLine("> git tag %s\n", version)
 	if _, err := runGit("tag", version); err != nil {
-		return output.String(), fmt.Errorf(tr.Tr("tag_git_tag_fail", err))
+		return output.String(), errors.New(tr.Tr("tag_git_tag_fail", err))
 	}
 
 	writeLine("> git push origin %s\n", version)
 	out, err := runGit("push", "origin", version)
 	output.WriteString(out)
 	if err != nil {
-		return output.String(), fmt.Errorf(tr.Tr("tag_git_push_fail", strings.TrimSpace(out)))
+		return output.String(), errors.New(tr.Tr("tag_git_push_fail", strings.TrimSpace(out)))
 	}
 
 	writeLine("\n%s\n", tr.Tr("tag_success", version))
@@ -257,7 +258,7 @@ func RunConventionalCommit(commitType, desc string, tr *Translator) (string, err
 	out, err := cmd.CombinedOutput()
 	output.Write(out)
 	if err != nil {
-		return output.String(), fmt.Errorf(tr.Tr("commit_git_add_fail", strings.TrimSpace(string(out))))
+		return output.String(), errors.New(tr.Tr("commit_git_add_fail", strings.TrimSpace(string(out))))
 	}
 
 	writeLine("> git commit -m \"%s\"\n", msg)
@@ -270,7 +271,7 @@ func RunConventionalCommit(commitType, desc string, tr *Translator) (string, err
 		if strings.Contains(commitOut, "nothing to commit") {
 			writeLine("\n%s\n", tr.Tr("commit_nothing_new"))
 		} else {
-			return output.String(), fmt.Errorf(tr.Tr("commit_git_commit_fail", commitOut))
+			return output.String(), errors.New(tr.Tr("commit_git_commit_fail", commitOut))
 		}
 	}
 
@@ -279,7 +280,7 @@ func RunConventionalCommit(commitType, desc string, tr *Translator) (string, err
 	out, err = cmd.CombinedOutput()
 	output.Write(out)
 	if err != nil {
-		return output.String(), fmt.Errorf(tr.Tr("commit_git_push_fail", strings.TrimSpace(string(out))))
+		return output.String(), errors.New(tr.Tr("commit_git_push_fail", strings.TrimSpace(string(out))))
 	}
 
 	if hasNewCommit {
