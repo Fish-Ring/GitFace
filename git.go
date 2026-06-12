@@ -130,7 +130,9 @@ func SwitchProfile(p *Profile, providers []Provider, tr *Translator) (string, er
 					}
 					if srcProvider := detectProviderFromURL(currentURL, providers); srcProvider != nil {
 						if srcPath := extractPathFromURL(currentURL); srcPath != "" {
-							repoCfg.Paths[srcProvider.ID] = srcPath
+							if _, exists := repoCfg.Paths[srcProvider.ID]; !exists {
+								repoCfg.Paths[srcProvider.ID] = srcPath
+							}
 						}
 					}
 				}
@@ -144,11 +146,11 @@ func SwitchProfile(p *Profile, providers []Provider, tr *Translator) (string, er
 					if newURL == "" {
 						continue
 					}
-					hostChanged := newURL != currentURL
-					if hostChanged {
-						if repoPath, ok := repoCfg.Paths[provider.ID]; ok {
-							path := strings.TrimSuffix(repoPath, ".git")
-							newURL = fmt.Sprintf("git@%s:%s.git", provider.Host, path)
+					if repoPath, ok := repoCfg.Paths[provider.ID]; ok {
+						path := strings.TrimSuffix(repoPath, ".git")
+						configuredURL := fmt.Sprintf("git@%s:%s.git", provider.Host, path)
+						if configuredURL != currentURL {
+							newURL = configuredURL
 						}
 					}
 					if newURL == currentURL {
