@@ -87,10 +87,12 @@ func (t *Translator) Tr(key string, args ...interface{}) string {
 	return text
 }
 
+var Version = "v1.0.3"
+
 var texts = map[Lang]map[string]string{
 	EN: {
 		// App
-		"app_title": "GitFace v1.0.2",
+		"app_title": "GitFace " + Version,
 
 		// Status section
 		"label_status":  "[Status]",
@@ -161,6 +163,17 @@ var texts = map[Lang]map[string]string{
 		"tag_git_push_fail":   "git push tag failed: %s",
 		"tag_version_empty":   "Version cannot be empty",
 		"tag_hint":            "[t] Tag",
+
+		// PR
+		"pr_hint":            "PR",
+		"pr_input_ph":        "Enter PR title...",
+		"pr_result":          "PR Result",
+		"pr_success":         "PR created: %s",
+		"pr_fail":            "PR failed: %s",
+		"pr_no_gh":           "gh CLI not found. Install from https://cli.github.com",
+		"pr_title_empty":     "PR title cannot be empty",
+		"pr_branch_created":  "Branch '%s' created and pushed",
+		"pr_main_reset":      "Branch '%s' reset to origin/%[1]s",
 
 		// Action names
 		"action_provider_mgmt": "Manage",
@@ -266,6 +279,7 @@ var texts = map[Lang]map[string]string{
 		"help_cmd_switch": "  gitf switch <id>         Switch to profile by ID",
 		"help_cmd_status": "  gitf status              Show current git identity & remote",
 		"help_cmd_tag":    "  gitf tag <version>       Create and push a release tag",
+		"help_cmd_pr":    "  gitf pr <title>          Create PR from current branch",
 		"help_cmd_edit": "  gitf edit                Open config in editor",
 		"help_cmd_help": "  gitf help                Show this help",
 
@@ -282,12 +296,12 @@ var texts = map[Lang]map[string]string{
 		"cli_clean":           "Status:  Clean",
 		"cli_edit_opening":    "Opening config in editor...",
 		"cli_no_repo":         "Not in a Git repository",
-		"cli_version":         "GitFace v1.0.2",
+		"cli_version":         "GitFace " + Version,
 	},
 
 	ZH: {
 		// App
-		"app_title": "GitFace v1.0.2",
+		"app_title": "GitFace " + Version,
 
 		// Status section
 		"label_status":  "【当前状态】",
@@ -358,6 +372,17 @@ var texts = map[Lang]map[string]string{
 		"tag_git_push_fail":   "git push tag 失败: %s",
 		"tag_version_empty":   "版本号不能为空",
 		"tag_hint":            "[t] 标签",
+
+		// PR
+		"pr_hint":            "PR",
+		"pr_input_ph":        "输入 PR 标题...",
+		"pr_result":          "PR 结果",
+		"pr_success":         "PR 已创建: %s",
+		"pr_fail":            "PR 失败: %s",
+		"pr_no_gh":           "未找到 gh CLI，请安装 https://cli.github.com",
+		"pr_title_empty":     "PR 标题不能为空",
+		"pr_branch_created":  "分支 '%s' 已创建并推送",
+		"pr_main_reset":      "分支 '%s' 已重置到 origin/%[1]s",
 
 		// Duplicate ID
 		"msg_duplicate_id": "ID '%s' 已被使用",
@@ -465,6 +490,7 @@ var texts = map[Lang]map[string]string{
 		"help_cmd_switch": "  gitf switch <id>         按 ID 切换身份",
 		"help_cmd_status": "  gitf status              查看当前 Git 身份与远程仓库",
 		"help_cmd_tag":    "  gitf tag <version>       创建并推送发布标签",
+		"help_cmd_pr":    "  gitf pr <标题>        从当前分支创建 PR",
 		"help_cmd_edit": "  gitf edit                用编辑器打开配置",
 		"help_cmd_help": "  gitf help                显示帮助信息",
 
@@ -481,11 +507,11 @@ var texts = map[Lang]map[string]string{
 		"cli_clean":           "状态:  干净",
 		"cli_edit_opening":    "正在打开编辑器...",
 		"cli_no_repo":         "不在 Git 仓库中",
-		"cli_version":         "GitFace v1.0.2",
+		"cli_version":         "GitFace " + Version,
 	},
 
 	JA: {
-		"app_title":           "GitFace v1.0.2",
+		"app_title":           "GitFace " + Version,
 		"label_status":        "【ステータス】",
 		"label_branch":        "ブランチ:",
 		"label_route":         "リモート:",
@@ -544,6 +570,17 @@ var texts = map[Lang]map[string]string{
 		"tag_git_push_fail":   "git push tag に失敗: %s",
 		"tag_version_empty":   "バージョンを入力してください",
 		"tag_hint":            "[t] タグ",
+
+		// PR
+		"pr_hint":            "PR",
+		"pr_input_ph":        "PR タイトルを入力...",
+		"pr_result":          "PR 結果",
+		"pr_success":         "PR を作成しました: %s",
+		"pr_fail":            "PR が失敗しました: %s",
+		"pr_no_gh":           "gh CLI が見つかりません。 https://cli.github.com からインストールしてください",
+		"pr_title_empty":     "PR タイトルを入力してください",
+		"pr_branch_created":  "ブランチ '%s' を作成してプッシュしました",
+		"pr_main_reset":      "ブランチ '%s' を origin/%[1]s にリセットしました",
 
 		// Duplicate ID
 		"msg_duplicate_id": "ID '%s' はすでに使用されています",
@@ -634,6 +671,7 @@ var texts = map[Lang]map[string]string{
 		"help_cmd_switch":     "  gitf switch <id>         IDで身分を切替",
 		"help_cmd_status":     "  gitf status              現在のGit身分とリモートを表示",
 		"help_cmd_tag":        "  gitf tag <version>       リリースタグを作成してプッシュ",
+		"help_cmd_pr":        "  gitf pr <title>          現在のブランチから PR を作成",
 		"help_cmd_edit":       "  gitf edit                エディタで設定を開く",
 		"help_cmd_help":       "  gitf help                このヘルプを表示",
 		"cli_switch_ok":       "プロファイル '%s' に切替ました",
@@ -648,11 +686,11 @@ var texts = map[Lang]map[string]string{
 		"cli_clean":           "状態:  クリーン",
 		"cli_edit_opening":    "エディタを開いています...",
 		"cli_no_repo":         "Gitリポジトリではありません",
-		"cli_version":         "GitFace v1.0.2",
+		"cli_version":         "GitFace " + Version,
 	},
 
 	KO: {
-		"app_title":           "GitFace v1.0.2",
+		"app_title":           "GitFace " + Version,
 		"label_status":        "【상태】",
 		"label_branch":        "브랜치:",
 		"label_route":         "원격:",
@@ -711,6 +749,17 @@ var texts = map[Lang]map[string]string{
 		"tag_git_push_fail":   "git push tag 실패: %s",
 		"tag_version_empty":   "버전을 입력하세요",
 		"tag_hint":            "[t] 태그",
+
+		// PR
+		"pr_hint":            "PR",
+		"pr_input_ph":        "PR 제목을 입력하세요...",
+		"pr_result":          "PR 결과",
+		"pr_success":         "PR 생성됨: %s",
+		"pr_fail":            "PR 실패: %s",
+		"pr_no_gh":           "gh CLI를 찾을 수 없습니다. https://cli.github.com 에서 설치하세요",
+		"pr_title_empty":     "PR 제목을 입력하세요",
+		"pr_branch_created":  "브랜치 '%s' 생성 및 푸시됨",
+		"pr_main_reset":      "브랜치 '%s'가 origin/%[1]s로 리셋됨",
 
 		// Duplicate ID
 		"msg_duplicate_id": "ID '%s'는 이미 사용 중입니다",
@@ -801,6 +850,7 @@ var texts = map[Lang]map[string]string{
 		"help_cmd_switch":     "  gitf switch <id>         ID로 신분 전환",
 		"help_cmd_status":     "  gitf status              현재 Git 신분과 원격 표시",
 		"help_cmd_tag":        "  gitf tag <version>       릴리스 태그를 생성하고 푸시",
+		"help_cmd_pr":        "  gitf pr <title>          현재 브랜치에서 PR 생성",
 		"help_cmd_edit":       "  gitf edit                에디터로 설정 열기",
 		"help_cmd_help":       "  gitf help                도움말 표시",
 		"cli_switch_ok":       "프로필 '%s'로 전환했습니다",
@@ -815,11 +865,11 @@ var texts = map[Lang]map[string]string{
 		"cli_clean":           "상태:  클린",
 		"cli_edit_opening":    "에디터를 열고 있습니다...",
 		"cli_no_repo":         "Git 저장소가 아닙니다",
-		"cli_version":         "GitFace v1.0.2",
+		"cli_version":         "GitFace " + Version,
 	},
 
 	ZH_TW: {
-		"app_title":           "GitFace v1.0.2",
+		"app_title":           "GitFace " + Version,
 		"label_status":        "【目前狀態】",
 		"label_branch":        "分支:",
 		"label_route":         "遠端:",
@@ -878,6 +928,17 @@ var texts = map[Lang]map[string]string{
 		"tag_git_push_fail":   "git push tag 失敗: %s",
 		"tag_version_empty":   "版本號不能為空",
 		"tag_hint":            "[t] 標籤",
+
+		// PR
+		"pr_hint":            "PR",
+		"pr_input_ph":        "輸入 PR 標題...",
+		"pr_result":          "PR 結果",
+		"pr_success":         "PR 已建立: %s",
+		"pr_fail":            "PR 失敗: %s",
+		"pr_no_gh":           "找不到 gh CLI，請安裝 https://cli.github.com",
+		"pr_title_empty":     "PR 標題不能為空",
+		"pr_branch_created":  "分支 '%s' 已建立並推送",
+		"pr_main_reset":      "分支 '%s' 已重置到 origin/%[1]s",
 
 		// Duplicate ID
 		"msg_duplicate_id": "ID '%s' 已被使用",
@@ -968,6 +1029,7 @@ var texts = map[Lang]map[string]string{
 		"help_cmd_switch":     "  gitf switch <id>         按 ID 切換身分",
 		"help_cmd_status":     "  gitf status              查看目前 Git 身分與遠端",
 		"help_cmd_tag":        "  gitf tag <version>       建立並推送發布標籤",
+		"help_cmd_pr":        "  gitf pr <title>          從目前分支建立 PR",
 		"help_cmd_edit":       "  gitf edit                用編輯器開啟設定",
 		"help_cmd_help":       "  gitf help                顯示說明資訊",
 		"cli_switch_ok":       "已切換至身分 '%s'",
@@ -982,6 +1044,6 @@ var texts = map[Lang]map[string]string{
 		"cli_clean":           "狀態:  乾淨",
 		"cli_edit_opening":    "正在開啟編輯器...",
 		"cli_no_repo":         "不在 Git 儲存庫中",
-		"cli_version":         "GitFace v1.0.2",
+		"cli_version":         "GitFace " + Version,
 	},
 }
