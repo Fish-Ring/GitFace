@@ -87,10 +87,12 @@ func (t *Translator) Tr(key string, args ...interface{}) string {
 	return text
 }
 
+var Version = "v1.0.3"
+
 var texts = map[Lang]map[string]string{
 	EN: {
 		// App
-		"app_title": "GitFace v1.0.2",
+		"app_title": "GitFace " + Version,
 
 		// Status section
 		"label_status":  "[Status]",
@@ -282,12 +284,12 @@ var texts = map[Lang]map[string]string{
 		"cli_clean":           "Status:  Clean",
 		"cli_edit_opening":    "Opening config in editor...",
 		"cli_no_repo":         "Not in a Git repository",
-		"cli_version":         "GitFace v1.0.2",
+		"cli_version":         "GitFace " + Version,
 	},
 
 	ZH: {
 		// App
-		"app_title": "GitFace v1.0.2",
+		"app_title": "GitFace " + Version,
 
 		// Status section
 		"label_status":  "【当前状态】",
@@ -481,11 +483,11 @@ var texts = map[Lang]map[string]string{
 		"cli_clean":           "状态:  干净",
 		"cli_edit_opening":    "正在打开编辑器...",
 		"cli_no_repo":         "不在 Git 仓库中",
-		"cli_version":         "GitFace v1.0.2",
+		"cli_version":         "GitFace " + Version,
 	},
 
 	JA: {
-		"app_title":           "GitFace v1.0.2",
+		"app_title":           "GitFace " + Version,
 		"label_status":        "【ステータス】",
 		"label_branch":        "ブランチ:",
 		"label_route":         "リモート:",
@@ -648,11 +650,11 @@ var texts = map[Lang]map[string]string{
 		"cli_clean":           "状態:  クリーン",
 		"cli_edit_opening":    "エディタを開いています...",
 		"cli_no_repo":         "Gitリポジトリではありません",
-		"cli_version":         "GitFace v1.0.2",
+		"cli_version":         "GitFace " + Version,
 	},
 
 	KO: {
-		"app_title":           "GitFace v1.0.2",
+		"app_title":           "GitFace " + Version,
 		"label_status":        "【상태】",
 		"label_branch":        "브랜치:",
 		"label_route":         "원격:",
@@ -815,11 +817,11 @@ var texts = map[Lang]map[string]string{
 		"cli_clean":           "상태:  클린",
 		"cli_edit_opening":    "에디터를 열고 있습니다...",
 		"cli_no_repo":         "Git 저장소가 아닙니다",
-		"cli_version":         "GitFace v1.0.2",
+		"cli_version":         "GitFace " + Version,
 	},
 
 	ZH_TW: {
-		"app_title":           "GitFace v1.0.2",
+		"app_title":           "GitFace " + Version,
 		"label_status":        "【目前狀態】",
 		"label_branch":        "分支:",
 		"label_route":         "遠端:",
@@ -982,6 +984,6 @@ var texts = map[Lang]map[string]string{
 		"cli_clean":           "狀態:  乾淨",
 		"cli_edit_opening":    "正在開啟編輯器...",
 		"cli_no_repo":         "不在 Git 儲存庫中",
-		"cli_version":         "GitFace v1.0.2",
+		"cli_version":         "GitFace " + Version,
 	},
 }
