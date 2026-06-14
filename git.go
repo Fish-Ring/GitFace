@@ -228,6 +228,111 @@ func CreateTag(version string, tr *Translator) (string, error) {
 	return output.String(), nil
 }
 
+func GetLastCommitMessage() string {
+	out, _ := runGit("log", "-1", "--format=%s")
+	return out
+}
+
+func GetDefaultBranch() string {
+	out, err := runGit("symbolic-ref", "refs/remotes/origin/HEAD")
+	if err != nil {
+		return "main"
+	}
+	parts := strings.Split(out, "/")
+	return parts[len(parts)-1]
+}
+
+func SanitizeBranchName(title string) string {
+	name := strings.ToLower(title)
+	name = strings.ReplaceAll(name, ":", "")
+	name = strings.ReplaceAll(name, "/", "-")
+	name = strings.ReplaceAll(name, " ", "-")
+	re := regexp.MustCompile(`[^a-z0-9-]`)
+	name = re.ReplaceAllString(name, "")
+	name = strings.Trim(name, "-")
+	if len(name) > 60 {
+		name = name[:60]
+	}
+	return strings.Trim(name, "-")
+}
+
+func CreatePR(title string, tr *Translator) (string, error) {
+	var output strings.Builder
+
+	writeLine := func(format string, a ...any) {
+		output.WriteString(fmt.Sprintf(format, a...))
+	}
+
+	if _, err := exec.LookPath("gh"); err != nil {
+		return output.String(), errors.New(tr.Tr("pr_no_gh"))
+	}
+
+	currentBranch := GetCurrentBranch()
+	if currentBranch == "" {
+		return output.String(), errors.New("not on a branch")
+	}
+
+	defaultBranch := GetDefaultBranch()
+	onDefault := currentBranch == defaultBranch
+
+	// Switch to temp branch if on default
+	if onDefault {
+		branchName := SanitizeBranchName(title)
+		if branchName == "" {
+			branchName = "gitf-pr-" + currentBranch
+		}
+		writeLine("> git checkout -b %s\n", branchName)
+		if _, err := runGit("checkout", "-b", branchName); err != nil {
+			return output.String(), errors.New(tr.Tr("cli_error", err))
+		}
+		writeLine("> git push -u origin %s\n", branchName)
+		if out, err := runGit("push", "-u", "origin", branchName); err != nil {
+			writeLine("%s", out)
+			runGit("checkout", defaultBranch)
+			return output.String(), errors.New(tr.Tr("cli_error", err))
+		}
+		writeLine("%s\n", tr.Tr("pr_branch_created", branchName))
+	} else {
+		// Already on feature branch: push to create PR
+		branchName := currentBranch
+		writeLine("> git push -u origin %s\n", branchName)
+		if out, err := runGit("push", "-u", "origin", branchName); err != nil {
+			writeLine("%s", out)
+			return output.String(), errors.New(tr.Tr("cli_error", err))
+		}
+	}
+
+	// Create PR
+	writeLine("> gh pr create --title \"%s\" --base %s\n", title, defaultBranch)
+	cmd := exec.Command("gh", "pr", "create", "--title", title, "--body", "", "--base", defaultBranch)
+	prOut, err := cmd.CombinedOutput()
+	if err != nil {
+		writeLine("%s", string(prOut))
+		runGit("checkout", defaultBranch)
+		return output.String(), errors.New(tr.Tr("pr_fail", strings.TrimSpace(string(prOut))))
+	}
+	prURL := strings.TrimSpace(string(prOut))
+	writeLine("%s\n", tr.Tr("pr_success", prURL))
+
+	// Reset original branch if on default, then switch back
+	if onDefault {
+		writeLine("> git branch -f %s origin/%s\n", currentBranch, currentBranch)
+		if _, err := runGit("branch", "-f", currentBranch, "origin/"+currentBranch); err != nil {
+			writeLine("Warning: failed to reset %s: %s\n", currentBranch, err)
+		} else {
+			writeLine("%s\n", tr.Tr("pr_main_reset", currentBranch))
+		}
+	}
+	writeLine("> git checkout %s\n", defaultBranch)
+	if _, err := runGit("checkout", defaultBranch); err != nil {
+		writeLine("Warning: failed to switch to %s: %s\n", defaultBranch, err)
+	} else {
+		writeLine("Switched to '%s'\n", defaultBranch)
+	}
+
+	return output.String(), nil
+}
+
 func getGitIndexPath() (string, error) {
 	cmd := exec.Command("git", "rev-parse", "--git-dir")
 	out, err := cmd.Output()

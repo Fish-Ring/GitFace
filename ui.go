@@ -29,6 +29,8 @@ const (
 	stateTagInput
 	stateRepoConfig
 	stateRepoConfigEdit
+	statePRInput
+	statePROutput
 )
 
 type refreshMsg struct {
@@ -83,6 +85,11 @@ type tagResultMsg struct {
 	err    error
 }
 
+type prResultMsg struct {
+	output string
+	err    error
+}
+
 type settingsSavedMsg struct {
 	err error
 }
@@ -110,9 +117,12 @@ type model struct {
 	commitOutput string
 	commitErr   error
 	canTag      bool
+	prOutput    string
+	prErr       error
 
-	tagInput  textinput.Model
-	tagCursor int
+	tagInput     textinput.Model
+	tagCursor    int
+	prTitleInput textinput.Model
 
 	accountEditIdx int
 	accountInputs  []textinput.Model
@@ -172,13 +182,19 @@ func NewModel(cfg *Config, cfgPath string, tr *Translator) model {
 	tgi.Focus()
 	tgi.CharLimit = 50
 
+	pti := textinput.New()
+	pti.Placeholder = tr.Tr("pr_input_ph")
+	pti.Focus()
+	pti.CharLimit = 200
+
 	return model{
 		cfg:         cfg,
 		cfgPath:     cfgPath,
 		tr:          tr,
 		state:       stateNormal,
-		commitInput: ti,
-		tagInput:    tgi,
+		commitInput:  ti,
+		tagInput:     tgi,
+		prTitleInput: pti,
 		cursor:      0,
 		width:       80,
 		height:      24,
@@ -298,6 +314,12 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		m.state = stateCommitOutput
 		return m, nil
 
+	case prResultMsg:
+		m.commitOutput = msg.output
+		m.commitErr = msg.err
+		m.state = stateCommitOutput
+		return m, nil
+
 	case editDoneMsg:
 		if msg.err != nil {
 			m.errMsg = m.tr.Tr("msg_edit_fail", msg.err)
@@ -408,10 +430,17 @@ func (m model) handleKeyMsg(msg tea.KeyMsg) (tea.Model, tea.Cmd) {
 		return m.handleCommitSelectKey(msg)
 	case stateCommitInput:
 		return m.handleCommitInputKey(msg)
+	case statePRInput:
+		return m.handlePRInputKey(msg)
 	case stateCommitOutput:
 		switch ks {
 		case "y", "Y":
-			text := m.commitOutput
+			var text string
+			if m.commitErr != nil {
+				text = m.commitOutput + "\n" + m.tr.Tr("cli_error", m.commitErr)
+			} else {
+				text = m.commitOutput
+			}
 			if text == "" {
 				m.errMsg = m.tr.Tr("msg_cannot_copy")
 			} else {
@@ -420,12 +449,9 @@ func (m model) handleKeyMsg(msg tea.KeyMsg) (tea.Model, tea.Cmd) {
 			}
 			return m, nil
 		case "r", "R":
-			m.state = stateNormal
-			m.commitOutput = ""
-			m.commitErr = nil
-			m.infoMsg = ""
-			m.errMsg = ""
-			return m, nil
+			m.state = statePRInput
+			m.prTitleInput.SetValue(GetLastCommitMessage())
+			return m, m.prTitleInput.Focus()
 		default:
 			if m.commitOutput == "..." {
 				return m, nil
@@ -459,12 +485,19 @@ func (m model) handleKeyMsg(msg tea.KeyMsg) (tea.Model, tea.Cmd) {
 		return m.handleRepoConfigKey(msg)
 	case stateRepoConfigEdit:
 		return m.handleRepoConfigEditKey(msg)
+	case statePROutput:
+		m.state = stateNormal
+		m.commitOutput = ""
+		m.commitErr = nil
+		m.prOutput = ""
+		m.prErr = nil
+		return m, nil
 	}
 	return m, nil
 }
 
 func (m model) totalItems() int {
-	return len(m.cfg.Profiles) + 5
+	return len(m.cfg.Profiles) + 6
 }
 
 func (m model) dispatchAction() (tea.Model, tea.Cmd) {
@@ -489,6 +522,16 @@ func (m model) dispatchAction() (tea.Model, tea.Cmd) {
 			m.errMsg = m.tr.Tr("msg_cannot_commit")
 			return m, nil
 		}
+		m.state = statePRInput
+		m.prTitleInput.SetValue(GetLastCommitMessage())
+		return m, m.prTitleInput.Focus()
+	case m.cursor == np+2:
+		m.errMsg = ""
+		m.infoMsg = ""
+		if !m.isRepo {
+			m.errMsg = m.tr.Tr("msg_cannot_commit")
+			return m, nil
+		}
 		rc := LoadRepoConfig()
 		m.repoConfig = rc
 		m.repoConfigProviders = m.cfg.Providers
@@ -499,21 +542,21 @@ func (m model) dispatchAction() (tea.Model, tea.Cmd) {
 		m.repoConfigCursor = 0
 		m.state = stateRepoConfig
 		return m, nil
-	case m.cursor == np+2:
+	case m.cursor == np+3:
 		m.errMsg = ""
 		m.infoMsg = ""
 		m.state = stateAccountManage
 		m.accountCursor = 0
 		m.delMode = false
 		return m, nil
-	case m.cursor == np+3:
+	case m.cursor == np+4:
 		m.errMsg = ""
 		m.infoMsg = ""
 		m.state = stateProviderManage
 		m.providerCursor = 0
 		m.providerDelMode = false
 		return m, nil
-	case m.cursor == np+4:
+	case m.cursor == np+5:
 		m.errMsg = ""
 		m.infoMsg = ""
 		m.state = stateSettings
@@ -544,6 +587,17 @@ func (m model) handleNormalKey(msg tea.KeyMsg) (tea.Model, tea.Cmd) {
 		return m.dispatchAction()
 
 	case "r", "R":
+		if !m.isRepo {
+			m.errMsg = m.tr.Tr("msg_no_repo")
+			return m, nil
+		}
+		m.errMsg = ""
+		m.infoMsg = ""
+		m.state = statePRInput
+		m.prTitleInput.SetValue(GetLastCommitMessage())
+		return m, m.prTitleInput.Focus()
+
+	case "f5":
 		m.errMsg = ""
 		m.infoMsg = ""
 		return m, m.refreshCmd()
@@ -725,6 +779,31 @@ func (m model) handleCommitInputKey(msg tea.KeyMsg) (tea.Model, tea.Cmd) {
 	}
 }
 
+func (m model) handlePRInputKey(msg tea.KeyMsg) (tea.Model, tea.Cmd) {
+	switch msg.String() {
+	case "enter":
+		title := strings.TrimSpace(m.prTitleInput.Value())
+		if title == "" {
+			m.errMsg = m.tr.Tr("pr_title_empty")
+			return m, nil
+		}
+		m.state = statePROutput
+		m.prOutput = "..."
+		tr := m.tr
+		return m, func() tea.Msg {
+			output, err := CreatePR(title, tr)
+			return prResultMsg{output: output, err: err}
+		}
+	case "esc":
+		m.state = stateNormal
+		return m, nil
+	default:
+		var cmd tea.Cmd
+		m.prTitleInput, cmd = m.prTitleInput.Update(msg)
+		return m, cmd
+	}
+}
+
 func (m model) handleMouseEvent(msg tea.MouseMsg) model {
 	switch msg.Button {
 	case tea.MouseButtonWheelUp:
@@ -781,7 +860,7 @@ func (m model) handleMouseEvent(msg tea.MouseMsg) model {
 	case tea.MouseButtonWheelDown:
 		switch m.state {
 		case stateNormal:
-			max := len(m.cfg.Profiles) + 5
+			max := len(m.cfg.Profiles) + 6
 			if m.cursor < max-1 {
 				m.cursor++
 			}
@@ -1697,7 +1776,7 @@ func (m model) View() string {
 	content.WriteString("\n\n")
 
 	switch m.state {
-	case stateCommitSelect, stateCommitInput, stateCommitOutput, stateTagPrompt, stateTagInput:
+	case stateCommitSelect, stateCommitInput, stateCommitOutput, stateTagPrompt, stateTagInput, statePRInput, statePROutput:
 		m.renderCommitFlow(&content)
 	case stateAccountManage:
 		m.renderAccountManage(&content)
@@ -1861,6 +1940,13 @@ func (m model) renderCommitFlow(s *strings.Builder) {
 				dimStyle.Render("  "+m.tr.Tr("commit_confirm_hint")),
 		))
 
+	case statePRInput:
+		s.WriteString(m.centerBlock(
+			labelStyle.Render(" "+m.tr.Tr("pr_result"))+"\n\n"+
+				"  "+m.prTitleInput.View()+"\n\n"+
+				dimStyle.Render("  "+m.tr.Tr("prompt_confirm_cancel")),
+		))
+
 	case stateCommitOutput:
 		out := m.commitOutput
 		if m.commitErr != nil {
@@ -1869,7 +1955,8 @@ func (m model) renderCommitFlow(s *strings.Builder) {
 		s.WriteString(m.centerBlock(
 			labelStyle.Render(" "+m.tr.Tr("commit_result"))+"\n\n"+
 				"  "+out+"\n\n"+
-				dimStyle.Render("  "+m.tr.Tr("prompt_any_key")),
+				dimStyle.Render("  "+m.tr.Tr("prompt_any_key")+"  |  "+
+					keyStyle.Render("[R]")+" "+m.tr.Tr("pr_hint")),
 		))
 
 	case stateTagPrompt:
@@ -1889,6 +1976,17 @@ func (m model) renderCommitFlow(s *strings.Builder) {
 		}
 		buf.WriteString("\n" + dimStyle.Render("  "+m.tr.Tr("prompt_cancel")))
 		s.WriteString(m.centerBlock(buf.String()))
+
+	case statePROutput:
+		out := m.prOutput
+		if m.prErr != nil {
+			out += "\n" + errorStyle.Render(m.tr.Tr("cli_error", m.prErr))
+		}
+		s.WriteString(m.centerBlock(
+			labelStyle.Render(" "+m.tr.Tr("pr_result"))+"\n\n"+
+				"  "+out+"\n\n"+
+				dimStyle.Render("  "+m.tr.Tr("prompt_any_key")),
+		))
 
 	case stateTagInput:
 		var buf strings.Builder
@@ -2078,6 +2176,8 @@ func (m model) renderBottomBar(s *strings.Builder) {
 		hint = m.buildRepoConfigBar()
 	case stateRepoConfigEdit:
 		hint = m.buildRepoConfigEditBar()
+	case statePROutput:
+		hint = fmt.Sprintf("  %s %s", keyStyle.Render("[Esc]"), m.tr.Tr("action_back"))
 	default:
 		hint = m.buildActionBar()
 	}
@@ -2087,7 +2187,7 @@ func (m model) renderBottomBar(s *strings.Builder) {
 func (m model) buildActionBar() string {
 	var b strings.Builder
 	b.WriteString(fmt.Sprintf("  %s%s", keyStyle.Render("[Y]"), m.tr.Tr("action_copy")))
-	b.WriteString(fmt.Sprintf("  %s%s", keyStyle.Render("[R]"), m.tr.Tr("action_refresh")))
+	b.WriteString(fmt.Sprintf("  %s%s", keyStyle.Render("[F5]"), m.tr.Tr("action_refresh")))
 	b.WriteString(fmt.Sprintf("  %s%s", keyStyle.Render("[Q]"), m.tr.Tr("action_quit")))
 	return b.String()
 }
@@ -2173,9 +2273,9 @@ func (m model) actionsView() string {
 		b.WriteString(fmt.Sprintf("  %s%s %s\n", cursor, keyStyle.Render(num), label))
 	}
 	np := len(m.cfg.Profiles)
-	actionKeys := []string{"C", "G", "A", "P", "S"}
-	actionTrs := []string{"action_commit", "action_repo_config", "action_accounts", "action_provider_mgmt", "action_settings"}
-	for i := 0; i < 5; i++ {
+	actionKeys := []string{"C", "R", "G", "A", "P", "S"}
+	actionTrs := []string{"action_commit", "pr_hint", "action_repo_config", "action_accounts", "action_provider_mgmt", "action_settings"}
+	for i := 0; i < 6; i++ {
 		cursor := "  "
 		if np+i == m.cursor {
 			cursor = cursorStyle.Render("▸ ")
