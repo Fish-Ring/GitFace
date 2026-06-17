@@ -87,7 +87,7 @@ func (t *Translator) Tr(key string, args ...interface{}) string {
 	return text
 }
 
-var Version = "v1.0.3"
+var Version = "v1.0.4"
 
 var texts = map[Lang]map[string]string{
 	EN: {
@@ -121,6 +121,9 @@ var texts = map[Lang]map[string]string{
 		"msg_cannot_commit": "Not in a Git repository, cannot commit",
 		"msg_cannot_switch": "Not in a Git repository, cannot switch identity",
 		"msg_desc_empty":   "Commit description cannot be empty",
+		"msg_no_branches":  "No branches found",
+		"msg_branch_switched": "✓ Switched to %s",
+		"msg_branch_switch_fail": "Switch branch failed: %s",
 
 		// SwitchProfile logs
 		"sp_name_fail":   "Failed to set user.name: %s",
@@ -154,7 +157,6 @@ var texts = map[Lang]map[string]string{
 		"commit_confirm_hint":    "[F2] Confirm  [Esc] Cancel",
 
 		// Tag
-		"tag_prompt":          "Create release tag? [y/N]",
 		"tag_input_ph":        "Enter version (e.g. v1.0.0)...",
 		"tag_result":          "Tag Result",
 		"tag_exists":          "Tag '%s' already exists",
@@ -162,7 +164,7 @@ var texts = map[Lang]map[string]string{
 		"tag_git_tag_fail":    "git tag failed: %s",
 		"tag_git_push_fail":   "git push tag failed: %s",
 		"tag_version_empty":   "Version cannot be empty",
-		"tag_hint":            "[t] Tag",
+		"tag_hint":            "Tag",
 
 		// PR
 		"pr_hint":            "PR",
@@ -175,12 +177,17 @@ var texts = map[Lang]map[string]string{
 		"pr_branch_created":  "Branch '%s' created and pushed",
 		"pr_main_reset":      "Branch '%s' reset to origin/%[1]s",
 
+		// Branch
+		"branch_switch_title": "Switch Branch",
+		"branch_current":      "* (current)",
+
 		// Action names
 		"action_provider_mgmt": "Manage",
 		"action_commit":        "Commit",
 		"action_accounts":      "Accounts",
 		"action_settings":      "Settings",
 		"action_repo_config":   "Repo Config",
+		"action_branch":        "Branch",
 		"action_copy":          "Copy",
 		"action_refresh":       "Refresh",
 		"action_quit":          "Quit",
@@ -330,6 +337,9 @@ var texts = map[Lang]map[string]string{
 		"msg_cannot_commit": "不在 Git 仓库中，无法提交",
 		"msg_cannot_switch": "不在 Git 仓库中，无法切换身份",
 		"msg_desc_empty":   "提交描述不能为空",
+		"msg_no_branches":  "没有找到分支",
+		"msg_branch_switched": "✓ 已切换到 %s",
+		"msg_branch_switch_fail": "切换分支失败: %s",
 
 		// SwitchProfile logs
 		"sp_name_fail":      "设置 user.name 失败: %s",
@@ -363,7 +373,6 @@ var texts = map[Lang]map[string]string{
 		"commit_confirm_hint":    "[F2] 确认  [Esc] 取消",
 
 		// Tag
-		"tag_prompt":          "创建发布标签？[y/N]",
 		"tag_input_ph":        "输入版本号（如 v1.0.0）...",
 		"tag_result":          "标签结果",
 		"tag_exists":          "标签 '%s' 已存在",
@@ -371,7 +380,7 @@ var texts = map[Lang]map[string]string{
 		"tag_git_tag_fail":    "git tag 失败: %s",
 		"tag_git_push_fail":   "git push tag 失败: %s",
 		"tag_version_empty":   "版本号不能为空",
-		"tag_hint":            "[t] 标签",
+		"tag_hint":            "标签",
 
 		// PR
 		"pr_hint":            "PR",
@@ -384,6 +393,10 @@ var texts = map[Lang]map[string]string{
 		"pr_branch_created":  "分支 '%s' 已创建并推送",
 		"pr_main_reset":      "分支 '%s' 已重置到 origin/%[1]s",
 
+		// Branch
+		"branch_switch_title": "切换分支",
+		"branch_current":      "* (当前)",
+
 		// Duplicate ID
 		"msg_duplicate_id": "ID '%s' 已被使用",
 
@@ -393,6 +406,7 @@ var texts = map[Lang]map[string]string{
 		"action_accounts":      "账户管理",
 		"action_settings":      "设置",
 		"action_repo_config":   "仓库配置",
+		"action_branch":        "分支",
 		"action_copy":          "复制",
 		"action_refresh":       "刷新",
 		"action_quit":          "退出",
@@ -532,6 +546,9 @@ var texts = map[Lang]map[string]string{
 		"msg_cannot_commit":   "Gitリポジトリではありません。コミットできません",
 		"msg_cannot_switch":   "Gitリポジトリではありません。身分を切替できません",
 		"msg_desc_empty":      "コミット説明は空にできません",
+		"msg_no_branches":     "ブランチが見つかりません",
+		"msg_branch_switched": "✓ %s に切り替えました",
+		"msg_branch_switch_fail": "ブランチの切り替えに失敗: %s",
 
 		// SwitchProfile logs
 		"sp_name_fail":      "user.name の設定に失敗: %s",
@@ -561,7 +578,6 @@ var texts = map[Lang]map[string]string{
 		"commit_confirm_hint":    "[F2] 確認  [Esc] キャンセル",
 
 		// Tag
-		"tag_prompt":          "リリースタグを作成しますか？[y/N]",
 		"tag_input_ph":        "バージョンを入力（例: v1.0.0）...",
 		"tag_result":          "タグ結果",
 		"tag_exists":          "タグ '%s' は既に存在します",
@@ -569,7 +585,7 @@ var texts = map[Lang]map[string]string{
 		"tag_git_tag_fail":    "git tag に失敗: %s",
 		"tag_git_push_fail":   "git push tag に失敗: %s",
 		"tag_version_empty":   "バージョンを入力してください",
-		"tag_hint":            "[t] タグ",
+		"tag_hint":            "タグ",
 
 		// PR
 		"pr_hint":            "PR",
@@ -582,6 +598,10 @@ var texts = map[Lang]map[string]string{
 		"pr_branch_created":  "ブランチ '%s' を作成してプッシュしました",
 		"pr_main_reset":      "ブランチ '%s' を origin/%[1]s にリセットしました",
 
+		// Branch
+		"branch_switch_title": "ブランチ切替",
+		"branch_current":      "* (現在)",
+
 		// Duplicate ID
 		"msg_duplicate_id": "ID '%s' はすでに使用されています",
 		"action_provider_mgmt": "管理",
@@ -589,6 +609,7 @@ var texts = map[Lang]map[string]string{
 		"action_accounts":     "アカウント",
 		"action_settings":     "設定",
 		"action_repo_config":  "リポジトリ設定",
+		"action_branch":       "ブランチ",
 		"action_copy":         "コピー",
 		"action_refresh":      "更新",
 		"action_quit":         "終了",
@@ -711,6 +732,9 @@ var texts = map[Lang]map[string]string{
 		"msg_cannot_commit":   "Git 저장소가 아닙니다. 커밋할 수 없습니다",
 		"msg_cannot_switch":   "Git 저장소가 아닙니다. 신분을 전환할 수 없습니다",
 		"msg_desc_empty":      "커밋 설명은 비워둘 수 없습니다",
+		"msg_no_branches":     "브랜치를 찾을 수 없습니다",
+		"msg_branch_switched": "✓ %s로 전환했습니다",
+		"msg_branch_switch_fail": "브랜치 전환 실패: %s",
 
 		// SwitchProfile logs
 		"sp_name_fail":      "user.name 설정 실패: %s",
@@ -740,7 +764,6 @@ var texts = map[Lang]map[string]string{
 		"commit_confirm_hint":    "[F2] 확인  [Esc] 취소",
 
 		// Tag
-		"tag_prompt":          "릴리스 태그를 생성하시겠습니까？[y/N]",
 		"tag_input_ph":        "버전을 입력하세요（예: v1.0.0）...",
 		"tag_result":          "태그 결과",
 		"tag_exists":          "태그 '%s'가 이미 존재합니다",
@@ -748,7 +771,7 @@ var texts = map[Lang]map[string]string{
 		"tag_git_tag_fail":    "git tag 실패: %s",
 		"tag_git_push_fail":   "git push tag 실패: %s",
 		"tag_version_empty":   "버전을 입력하세요",
-		"tag_hint":            "[t] 태그",
+		"tag_hint":            "태그",
 
 		// PR
 		"pr_hint":            "PR",
@@ -761,6 +784,10 @@ var texts = map[Lang]map[string]string{
 		"pr_branch_created":  "브랜치 '%s' 생성 및 푸시됨",
 		"pr_main_reset":      "브랜치 '%s'가 origin/%[1]s로 리셋됨",
 
+		// Branch
+		"branch_switch_title": "브랜치 전환",
+		"branch_current":      "* (현재)",
+
 		// Duplicate ID
 		"msg_duplicate_id": "ID '%s'는 이미 사용 중입니다",
 		"action_provider_mgmt": "관리",
@@ -768,6 +795,7 @@ var texts = map[Lang]map[string]string{
 		"action_accounts":     "계정",
 		"action_settings":     "설정",
 		"action_repo_config":  "저장소 설정",
+		"action_branch":       "브랜치",
 		"action_copy":         "복사",
 		"action_refresh":      "새로고침",
 		"action_quit":         "종료",
@@ -890,6 +918,9 @@ var texts = map[Lang]map[string]string{
 		"msg_cannot_commit":   "不在 Git 儲存庫中，無法提交",
 		"msg_cannot_switch":   "不在 Git 儲存庫中，無法切換身分",
 		"msg_desc_empty":      "提交描述不能為空",
+		"msg_no_branches":     "找不到分支",
+		"msg_branch_switched": "✓ 已切換到 %s",
+		"msg_branch_switch_fail": "切換分支失敗: %s",
 
 		// SwitchProfile logs
 		"sp_name_fail":      "設定 user.name 失敗: %s",
@@ -919,7 +950,7 @@ var texts = map[Lang]map[string]string{
 		"commit_confirm_hint":    "[F2] 確認  [Esc] 取消",
 
 		// Tag
-		"tag_prompt":          "建立發布標籤？[y/N]",
+		// Tag
 		"tag_input_ph":        "輸入版本號（如 v1.0.0）...",
 		"tag_result":          "標籤結果",
 		"tag_exists":          "標籤 '%s' 已存在",
@@ -927,7 +958,7 @@ var texts = map[Lang]map[string]string{
 		"tag_git_tag_fail":    "git tag 失敗: %s",
 		"tag_git_push_fail":   "git push tag 失敗: %s",
 		"tag_version_empty":   "版本號不能為空",
-		"tag_hint":            "[t] 標籤",
+		"tag_hint":            "標籤",
 
 		// PR
 		"pr_hint":            "PR",
@@ -940,6 +971,10 @@ var texts = map[Lang]map[string]string{
 		"pr_branch_created":  "分支 '%s' 已建立並推送",
 		"pr_main_reset":      "分支 '%s' 已重置到 origin/%[1]s",
 
+		// Branch
+		"branch_switch_title": "切換分支",
+		"branch_current":      "* (目前)",
+
 		// Duplicate ID
 		"msg_duplicate_id": "ID '%s' 已被使用",
 		"action_provider_mgmt": "管理",
@@ -947,6 +982,7 @@ var texts = map[Lang]map[string]string{
 		"action_accounts":     "帳戶管理",
 		"action_settings":     "設定",
 		"action_repo_config":  "儲存庫設定",
+		"action_branch":       "分支",
 		"action_copy":         "複製",
 		"action_refresh":      "重新整理",
 		"action_quit":         "離開",

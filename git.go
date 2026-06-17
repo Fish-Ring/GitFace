@@ -256,6 +256,22 @@ func SanitizeBranchName(title string) string {
 	return strings.Trim(name, "-")
 }
 
+func ListBranches() []string {
+	out, err := runGit("branch", "--format=%(refname:short)")
+	if err != nil {
+		return nil
+	}
+	out = strings.TrimSpace(out)
+	if out == "" {
+		return nil
+	}
+	return strings.Split(out, "\n")
+}
+
+func SwitchBranch(branch string) (string, error) {
+	return runGit("switch", branch)
+}
+
 func CreatePR(title string, tr *Translator) (string, error) {
 	var output strings.Builder
 

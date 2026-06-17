@@ -31,6 +31,7 @@ const (
 	stateRepoConfigEdit
 	statePRInput
 	statePROutput
+	stateBranchSwitch
 )
 
 type refreshMsg struct {
@@ -116,12 +117,10 @@ type model struct {
 	commitInput textarea.Model
 	commitOutput string
 	commitErr   error
-	canTag      bool
 	prOutput    string
 	prErr       error
 
 	tagInput     textinput.Model
-	tagCursor    int
 	prTitleInput textinput.Model
 
 	accountEditIdx int
@@ -154,6 +153,9 @@ type model struct {
 
 	width  int
 	height int
+
+	branches     []string
+	branchCursor int
 }
 
 var commitTypes = []struct {
@@ -299,13 +301,7 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	case commitResultMsg:
 		m.commitOutput = msg.output
 		m.commitErr = msg.err
-		if msg.err == nil {
-			m.state = stateTagPrompt
-			m.tagCursor = 1
-			m.tagInput.SetValue("")
-		} else {
-			m.state = stateCommitOutput
-		}
+		m.state = stateCommitOutput
 		return m, nil
 
 	case tagResultMsg:
@@ -463,8 +459,6 @@ func (m model) handleKeyMsg(msg tea.KeyMsg) (tea.Model, tea.Cmd) {
 			m.errMsg = ""
 			return m, nil
 		}
-	case stateTagPrompt:
-		return m.handleTagPromptKey(msg)
 	case stateTagInput:
 		return m.handleTagInputKey(msg)
 	case stateAccountManage:
@@ -492,12 +486,14 @@ func (m model) handleKeyMsg(msg tea.KeyMsg) (tea.Model, tea.Cmd) {
 		m.prOutput = ""
 		m.prErr = nil
 		return m, nil
+	case stateBranchSwitch:
+		return m.handleBranchSwitchKey(msg)
 	}
 	return m, nil
 }
 
 func (m model) totalItems() int {
-	return len(m.cfg.Profiles) + 6
+	return len(m.cfg.Profiles) + 8
 }
 
 func (m model) dispatchAction() (tea.Model, tea.Cmd) {
@@ -522,10 +518,20 @@ func (m model) dispatchAction() (tea.Model, tea.Cmd) {
 			m.errMsg = m.tr.Tr("msg_cannot_commit")
 			return m, nil
 		}
+		m.state = stateTagInput
+		m.tagInput.SetValue("")
+		return m, textinput.Blink
+	case m.cursor == np+2:
+		m.errMsg = ""
+		m.infoMsg = ""
+		if !m.isRepo {
+			m.errMsg = m.tr.Tr("msg_cannot_commit")
+			return m, nil
+		}
 		m.state = statePRInput
 		m.prTitleInput.SetValue(GetLastCommitMessage())
 		return m, m.prTitleInput.Focus()
-	case m.cursor == np+2:
+	case m.cursor == np+3:
 		m.errMsg = ""
 		m.infoMsg = ""
 		if !m.isRepo {
@@ -542,25 +548,47 @@ func (m model) dispatchAction() (tea.Model, tea.Cmd) {
 		m.repoConfigCursor = 0
 		m.state = stateRepoConfig
 		return m, nil
-	case m.cursor == np+3:
+	case m.cursor == np+4:
 		m.errMsg = ""
 		m.infoMsg = ""
 		m.state = stateAccountManage
 		m.accountCursor = 0
 		m.delMode = false
 		return m, nil
-	case m.cursor == np+4:
+	case m.cursor == np+5:
 		m.errMsg = ""
 		m.infoMsg = ""
 		m.state = stateProviderManage
 		m.providerCursor = 0
 		m.providerDelMode = false
 		return m, nil
-	case m.cursor == np+5:
+	case m.cursor == np+6:
 		m.errMsg = ""
 		m.infoMsg = ""
 		m.state = stateSettings
 		m.settingsCursor = 0
+		return m, nil
+	case m.cursor == np+7:
+		m.errMsg = ""
+		m.infoMsg = ""
+		if !m.isRepo {
+			m.errMsg = m.tr.Tr("msg_cannot_commit")
+			return m, nil
+		}
+		bd := ListBranches()
+		if len(bd) == 0 {
+			m.errMsg = m.tr.Tr("msg_no_branches")
+			return m, nil
+		}
+		m.branches = bd
+		m.branchCursor = 0
+		for i, b := range bd {
+			if b == m.branch {
+				m.branchCursor = i
+				break
+			}
+		}
+		m.state = stateBranchSwitch
 		return m, nil
 	}
 	return m, nil
@@ -601,6 +629,17 @@ func (m model) handleNormalKey(msg tea.KeyMsg) (tea.Model, tea.Cmd) {
 		m.errMsg = ""
 		m.infoMsg = ""
 		return m, m.refreshCmd()
+
+	case "t", "T":
+		if !m.isRepo {
+			m.errMsg = m.tr.Tr("msg_cannot_commit")
+			return m, nil
+		}
+		m.errMsg = ""
+		m.infoMsg = ""
+		m.state = stateTagInput
+		m.tagInput.SetValue("")
+		return m, textinput.Blink
 
 	case "e", "E":
 		m.errMsg = ""
@@ -672,6 +711,27 @@ func (m model) handleNormalKey(msg tea.KeyMsg) (tea.Model, tea.Cmd) {
 			text += "\n" + m.remoteURL
 		}
 		return m, m.copyCmd(text)
+
+	case "b", "B":
+		if !m.isRepo {
+			m.errMsg = m.tr.Tr("msg_cannot_commit")
+			return m, nil
+		}
+		bd := ListBranches()
+		if len(bd) == 0 {
+			m.errMsg = m.tr.Tr("msg_no_branches")
+			return m, nil
+		}
+		m.branches = bd
+		m.branchCursor = 0
+		for i, b := range bd {
+			if b == m.branch {
+				m.branchCursor = i
+				break
+			}
+		}
+		m.state = stateBranchSwitch
+		return m, nil
 
 	default:
 		for i := range m.cfg.Profiles {
@@ -844,10 +904,6 @@ func (m model) handleMouseEvent(msg tea.MouseMsg) model {
 			if m.sshKeyCursor > 0 {
 				m.sshKeyCursor--
 			}
-		case stateTagPrompt:
-			if m.tagCursor > 0 {
-				m.tagCursor--
-			}
 		case stateSettings:
 			if m.settingsCursor > 0 {
 				m.settingsCursor--
@@ -856,11 +912,15 @@ func (m model) handleMouseEvent(msg tea.MouseMsg) model {
 			if m.repoConfigCursor > 0 {
 				m.repoConfigCursor--
 			}
+		case stateBranchSwitch:
+			if m.branchCursor > 0 {
+				m.branchCursor--
+			}
 		}
 	case tea.MouseButtonWheelDown:
 		switch m.state {
 		case stateNormal:
-			max := len(m.cfg.Profiles) + 6
+			max := len(m.cfg.Profiles) + 7
 			if m.cursor < max-1 {
 				m.cursor++
 			}
@@ -896,10 +956,6 @@ func (m model) handleMouseEvent(msg tea.MouseMsg) model {
 			if m.sshKeyCursor < len(m.sshKeys)-1 {
 				m.sshKeyCursor++
 			}
-		case stateTagPrompt:
-			if m.tagCursor < 1 {
-				m.tagCursor++
-			}
 		case stateSettings:
 			if m.settingsCursor < len(m.settingsItems())-1 {
 				m.settingsCursor++
@@ -907,6 +963,10 @@ func (m model) handleMouseEvent(msg tea.MouseMsg) model {
 		case stateRepoConfig:
 			if m.repoConfigCursor < len(m.repoConfigKeys)-1 {
 				m.repoConfigCursor++
+			}
+		case stateBranchSwitch:
+			if m.branchCursor < len(m.branches)-1 {
+				m.branchCursor++
 			}
 		}
 	}
@@ -1166,37 +1226,6 @@ func (m model) handleSSHKeyPickerKey(msg tea.KeyMsg) (tea.Model, tea.Cmd) {
 	return m, nil
 }
 
-func (m model) handleTagPromptKey(msg tea.KeyMsg) (tea.Model, tea.Cmd) {
-	switch msg.String() {
-	case "up", "k":
-		if m.tagCursor > 0 {
-			m.tagCursor--
-		}
-		return m, nil
-	case "down", "j":
-		if m.tagCursor < 1 {
-			m.tagCursor++
-		}
-		return m, nil
-	case "enter":
-		if m.tagCursor == 0 {
-			m.state = stateTagInput
-			m.tagInput.SetValue("")
-			return m, textinput.Blink
-		}
-		m.state = stateNormal
-		m.commitOutput = ""
-		m.commitErr = nil
-		return m, nil
-	case "esc":
-		m.state = stateNormal
-		m.commitOutput = ""
-		m.commitErr = nil
-		return m, nil
-	}
-	return m, nil
-}
-
 func (m model) handleTagInputKey(msg tea.KeyMsg) (tea.Model, tea.Cmd) {
 	switch msg.String() {
 	case "enter":
@@ -1217,6 +1246,43 @@ func (m model) handleTagInputKey(msg tea.KeyMsg) (tea.Model, tea.Cmd) {
 		m.tagInput, cmd = m.tagInput.Update(msg)
 		return m, cmd
 	}
+}
+
+func (m model) handleBranchSwitchKey(msg tea.KeyMsg) (tea.Model, tea.Cmd) {
+	switch msg.String() {
+	case "esc":
+		m.state = stateNormal
+		m.infoMsg = ""
+		m.errMsg = ""
+		return m, nil
+	case "up", "k":
+		if m.branchCursor > 0 {
+			m.branchCursor--
+		}
+		return m, nil
+	case "down", "j":
+		if m.branchCursor < len(m.branches)-1 {
+			m.branchCursor++
+		}
+		return m, nil
+	case "enter":
+		selected := m.branches[m.branchCursor]
+		if selected == m.branch {
+			m.state = stateNormal
+			return m, nil
+		}
+		out, err := SwitchBranch(selected)
+		if err != nil {
+			m.errMsg = m.tr.Tr("msg_branch_switch_fail", strings.TrimSpace(out))
+			m.state = stateNormal
+			return m, nil
+		}
+		m.infoMsg = m.tr.Tr("msg_branch_switched", selected)
+		m.state = stateNormal
+		m.branch = GetCurrentBranch()
+		return m, m.refreshCmd()
+	}
+	return m, nil
 }
 
 func (m model) handleProviderManageKey(msg tea.KeyMsg) (tea.Model, tea.Cmd) {
@@ -1776,7 +1842,7 @@ func (m model) View() string {
 	content.WriteString("\n\n")
 
 	switch m.state {
-	case stateCommitSelect, stateCommitInput, stateCommitOutput, stateTagPrompt, stateTagInput, statePRInput, statePROutput:
+	case stateCommitSelect, stateCommitInput, stateCommitOutput, stateTagInput, statePRInput, statePROutput:
 		m.renderCommitFlow(&content)
 	case stateAccountManage:
 		m.renderAccountManage(&content)
@@ -1794,6 +1860,8 @@ func (m model) View() string {
 		m.renderSettings(&content)
 	case stateRepoConfig, stateRepoConfigEdit:
 		m.renderRepoConfig(&content)
+	case stateBranchSwitch:
+		m.renderBranchSwitch(&content)
 	default:
 		m.renderNormalContent(&content)
 	}
@@ -1958,24 +2026,6 @@ func (m model) renderCommitFlow(s *strings.Builder) {
 				dimStyle.Render("  "+m.tr.Tr("prompt_any_key")+"  |  "+
 					keyStyle.Render("[R]")+" "+m.tr.Tr("pr_hint")),
 		))
-
-	case stateTagPrompt:
-		var buf strings.Builder
-		buf.WriteString(labelStyle.Render(" "+m.tr.Tr("commit_result"))+"\n\n")
-		if m.commitOutput != "" {
-			buf.WriteString("  " + m.commitOutput + "\n\n")
-		}
-		buf.WriteString(labelStyle.Render(" "+m.tr.Tr("tag_prompt")) + "\n\n")
-		opts := []string{"Yes", "No"}
-		for i, opt := range opts {
-			cursor := "  "
-			if i == m.tagCursor {
-				cursor = cursorStyle.Render("▸ ")
-			}
-			buf.WriteString(fmt.Sprintf("  %s%s\n", cursor, keyStyle.Render(opt)))
-		}
-		buf.WriteString("\n" + dimStyle.Render("  "+m.tr.Tr("prompt_cancel")))
-		s.WriteString(m.centerBlock(buf.String()))
 
 	case statePROutput:
 		out := m.prOutput
@@ -2155,6 +2205,24 @@ func (m model) renderProviderPicker(s *strings.Builder) {
 	s.WriteString(m.centerBlock(buf.String()))
 }
 
+func (m model) renderBranchSwitch(s *strings.Builder) {
+	var buf strings.Builder
+	buf.WriteString(labelStyle.Render(" " + m.tr.Tr("branch_switch_title")) + "\n\n")
+	for i, b := range m.branches {
+		cursor := "  "
+		if i == m.branchCursor {
+			cursor = cursorStyle.Render("▸ ")
+		}
+		mark := ""
+		if b == m.branch {
+			mark = fmt.Sprintf(" %s", keyStyle.Render(m.tr.Tr("branch_current")))
+		}
+		buf.WriteString(fmt.Sprintf("  %s%s%s\n", cursor, b, mark))
+	}
+	buf.WriteString("\n" + dimStyle.Render("  "+m.tr.Tr("prompt_cancel")))
+	s.WriteString(m.centerBlock(buf.String()))
+}
+
 func (m model) renderBottomBar(s *strings.Builder) {
 	var hint string
 	switch m.state {
@@ -2273,9 +2341,9 @@ func (m model) actionsView() string {
 		b.WriteString(fmt.Sprintf("  %s%s %s\n", cursor, keyStyle.Render(num), label))
 	}
 	np := len(m.cfg.Profiles)
-	actionKeys := []string{"C", "R", "G", "A", "P", "S"}
-	actionTrs := []string{"action_commit", "pr_hint", "action_repo_config", "action_accounts", "action_provider_mgmt", "action_settings"}
-	for i := 0; i < 6; i++ {
+	actionKeys := []string{"C", "T", "R", "G", "A", "P", "S", "B"}
+	actionTrs := []string{"action_commit", "tag_hint", "pr_hint", "action_repo_config", "action_accounts", "action_provider_mgmt", "action_settings", "action_branch"}
+	for i := 0; i < 8; i++ {
 		cursor := "  "
 		if np+i == m.cursor {
 			cursor = cursorStyle.Render("▸ ")
