@@ -54,7 +54,10 @@ Run `gitf` (no arguments) to launch the TUI.
   [1] Personal (GitHub)
   [2] Company (GitLab)
   [C] Commit
+  [T] Tag
+  [R] PR
   [G] Repo Config
+  [B] Branch
   [A] Accounts
   [P] Manage
   [S] Settings
@@ -65,13 +68,16 @@ Run `gitf` (no arguments) to launch the TUI.
 ### Hotkeys (Main Screen)
 
 | Key | Action |
-|---|---|
+|---|---|---|
 | `[1]` `[2]` ... | Switch to profile by number |
 | `[C]` | Start conventional commit |
+| `[T]` | Create and push a release tag |
+| `[R]` | Create a Pull Request |
+| `[G]` | Repo config (per-repo remote path) |
+| `[B]` | Switch branch |
 | `[A]` | Account management |
 | `[P]` | Provider management |
 | `[S]` | Settings (language toggle + edit config) |
-| `[G]` | Repo config (per-repo remote path) |
 | `[Y]` | Copy identity info to clipboard |
 | `[R]` | Refresh status |
 | `[Q]` | Quit |
@@ -160,11 +166,25 @@ Only provider management, account management, settings, repo config, and quit ar
    - `x` → `fix` (bug fix)
    - `d` → `docs` (documentation)
    - `r` → `refactor` (code refactor)
-3. Enter description, press `Enter`
+3. Enter description (multi-line supported), press `F2` to submit
 4. Auto `git add .` → `git commit -m "type: desc"` → `git push`
 5. View output, press any key to return
-6. After successful commit, you are prompted to create a release tag (Yes/No)
-7. Select Yes, enter a version like `v1.0.0`, and the tag is created and pushed
+
+### Tag Creation
+
+Press `[T]` at the main screen to create and push a release tag:
+
+1. Enter a version (e.g. `v1.0.0`) and press `Enter`
+2. Tag is created locally and pushed to remote
+
+### Branch Switching
+
+Press `[B]` at the main screen to switch branches:
+
+1. A list of all local branches is displayed (current branch marked with `*`)
+2. Navigate with ↑↓ or scroll wheel
+3. Press `Enter` to switch, `Esc` to cancel
+4. Status refreshes automatically after switching
 
 ---
 

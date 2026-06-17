@@ -16,7 +16,8 @@ Git Multi-Identity & Remote Manager — Switch identity, git provider, and SSH k
 - **SSH Key Scanning** — `[Ctrl+O]` scan `~/.ssh/` directory and fill key path instantly
 - **Repo Config** — Per-repo remote path mappings, edit via `[G]` in TUI
 - **Conventional Commit** — Interactive commit type selection with auto add/commit/push
-- **Release Tag** — Create and push release tags from TUI after commit or via CLI
+- **Release Tag** — Press `[T]` in TUI to create and push release tags, or via CLI
+- **Branch Switching** — Press `[B]` in TUI to switch local branches
 - **Dual Interface** — TUI + CLI subcommands
 - **Mouse Scroll** — All lists support scroll wheel navigation
 - **Multi-language** — Auto-detected from env or config (zh-CN / zh-TW / en / ja / ko)

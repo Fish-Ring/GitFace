@@ -551,26 +551,6 @@ func (m model) dispatchAction() (tea.Model, tea.Cmd) {
 	case m.cursor == np+4:
 		m.errMsg = ""
 		m.infoMsg = ""
-		m.state = stateAccountManage
-		m.accountCursor = 0
-		m.delMode = false
-		return m, nil
-	case m.cursor == np+5:
-		m.errMsg = ""
-		m.infoMsg = ""
-		m.state = stateProviderManage
-		m.providerCursor = 0
-		m.providerDelMode = false
-		return m, nil
-	case m.cursor == np+6:
-		m.errMsg = ""
-		m.infoMsg = ""
-		m.state = stateSettings
-		m.settingsCursor = 0
-		return m, nil
-	case m.cursor == np+7:
-		m.errMsg = ""
-		m.infoMsg = ""
 		if !m.isRepo {
 			m.errMsg = m.tr.Tr("msg_cannot_commit")
 			return m, nil
@@ -589,6 +569,26 @@ func (m model) dispatchAction() (tea.Model, tea.Cmd) {
 			}
 		}
 		m.state = stateBranchSwitch
+		return m, nil
+	case m.cursor == np+5:
+		m.errMsg = ""
+		m.infoMsg = ""
+		m.state = stateAccountManage
+		m.accountCursor = 0
+		m.delMode = false
+		return m, nil
+	case m.cursor == np+6:
+		m.errMsg = ""
+		m.infoMsg = ""
+		m.state = stateProviderManage
+		m.providerCursor = 0
+		m.providerDelMode = false
+		return m, nil
+	case m.cursor == np+7:
+		m.errMsg = ""
+		m.infoMsg = ""
+		m.state = stateSettings
+		m.settingsCursor = 0
 		return m, nil
 	}
 	return m, nil
@@ -2341,8 +2341,8 @@ func (m model) actionsView() string {
 		b.WriteString(fmt.Sprintf("  %s%s %s\n", cursor, keyStyle.Render(num), label))
 	}
 	np := len(m.cfg.Profiles)
-	actionKeys := []string{"C", "T", "R", "G", "A", "P", "S", "B"}
-	actionTrs := []string{"action_commit", "tag_hint", "pr_hint", "action_repo_config", "action_accounts", "action_provider_mgmt", "action_settings", "action_branch"}
+	actionKeys := []string{"C", "T", "R", "G", "B", "A", "P", "S"}
+	actionTrs := []string{"action_commit", "tag_hint", "pr_hint", "action_repo_config", "action_branch", "action_accounts", "action_provider_mgmt", "action_settings"}
 	for i := 0; i < 8; i++ {
 		cursor := "  "
 		if np+i == m.cursor {
